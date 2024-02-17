@@ -2,6 +2,8 @@ package com.github.feeling.src.config
 
 class Bot {
     val prefix: String = "f?"
+    val colorEmbed: String = "#2b2d31"
+
     private val emojiMap: Map<String, String> = mapOf(
         "loading" to "<a:carregando:1207471259202494544>",
         "bug_hunter" to "<:Sv_BugHunter:1207465094058090576>",

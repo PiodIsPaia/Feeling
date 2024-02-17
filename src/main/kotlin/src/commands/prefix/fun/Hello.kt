@@ -11,44 +11,48 @@ import java.awt.Color
 class Hello : ListenerAdapter() {
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.author.isBot) return
+
         val prefix = getPrefix(event.guild) ?: Bot().prefix
-
-        val h = arrayOf("hi", "hello", "hl")
-
         val contentRaw = event.message.contentRaw.lowercase()
+
         if (contentRaw.startsWith(prefix)) {
             val command = contentRaw.substring(prefix.length).trim()
 
-            if (h.any { command.startsWith(it) }) {
+            if (isGreetingCommand(command)) {
+                GreetingResponder(event).respondToGreeting()
+            }
+        }
+    }
 
-                val args = event.message.contentRaw.split(" ")
-                if (args.size == 1) {
+    private fun isGreetingCommand(command: String): Boolean {
+        val greetings = arrayOf("hi", "hello", "hl")
+        return greetings.any { command.startsWith(it) }
+    }
 
-                    val sender = event.author
+    private class GreetingResponder(private val event: MessageReceivedEvent) {
+        fun respondToGreeting() {
+            val sender = event.author
+            val prefixCommandsActive = arePrefixCommandsActive(event.guild.id)
 
-                    val prefixCommandsActive = arePrefixCommandsActive(event.guild.id)
+            if (prefixCommandsActive) {
+                val theme = "anime greeting"
+                val tenorSearch = TenorSearch(theme)
+                val gifUrls = tenorSearch.searchGifs()
 
-                    if (prefixCommandsActive) {
-                        val theme = "anime greeting"
-                        val tenorSearch = TenorSearch(theme)
-                        val gifUrls = tenorSearch.searchGifs()
+                if (gifUrls.isNotEmpty()) {
+                    val gifUrl = gifUrls.random()
+                    val embed = EmbedBuilder()
+                        .setImage(gifUrl.first)
+                        .setFooter("Fonte: ${gifUrl.second}", null)
+                        .setColor(Color.decode("#2b2d31"))
+                        .build()
 
-                        if (gifUrls.isNotEmpty()) {
-                            val gifUrl = gifUrls.random()
+                    val greetingEmoji = Bot().getEmoji("gura_greeting")
 
-                            val embed = EmbedBuilder()
-                                .setImage(gifUrl.first)
-                                .setFooter("Fonte: ${gifUrl.second}", null)
-                                .setColor(Color.decode("#2b2d31"))
-                                .build()
-
-                            val greetingEmoji = Bot().getEmoji("gura_greeting")
-
-                            event.message.replyEmbeds(embed).addContent("## $greetingEmoji | ${sender.asMention} está saudando a todos ").queue()
-                        } else {
-                            println("Nenhum GIF encontrado para o tema '$theme'.")
-                        }
-                    } else return
+                    event.message.replyEmbeds(embed)
+                        .addContent("## $greetingEmoji | ${sender.asMention} está saudando a todos ").queue()
+                } else {
+                    println("Nenhum GIF encontrado para o tema '$theme'.")
                 }
             }
         }

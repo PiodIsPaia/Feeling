@@ -1,4 +1,4 @@
-package com.github.feeling.src.events
+package com.github.feeling.src.events.bot
 
 import net.dv8tion.jda.api.events.session.ReadyEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
