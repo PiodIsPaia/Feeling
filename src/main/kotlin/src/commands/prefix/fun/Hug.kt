@@ -17,10 +17,17 @@ class Hug : ListenerAdapter() {
 
         if (contentRaw.startsWith("${prefix}hug")) {
             val sender = event.author
-            val receiver = event.message.mentions.members[0].user
+            val mentions = event.message.mentions.members
             val powerEmoji = Bot().getEmoji("power_hug")
 
-            val h = SendGif(event, "anime hug", "## $powerEmoji | ${sender.asMention} acabou de dar um abraço em ${receiver.asMention}")
+            val message = if (mentions.isNotEmpty()) {
+                val receiver = mentions[0].user
+                "## $powerEmoji ${sender.asMention} acabou de dar um abraço em ${receiver.asMention}"
+            } else {
+                "## $powerEmoji ${sender.asMention} deu um abraço em mim ✨"
+            }
+
+            val h = SendGif(event, "anime hug", message)
             h.send()
         }
     }

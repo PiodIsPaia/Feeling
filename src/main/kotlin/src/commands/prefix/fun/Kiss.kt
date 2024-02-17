@@ -17,10 +17,17 @@ class Kiss : ListenerAdapter() {
 
         if (content.startsWith("${prefix}kiss")) {
             val sender = event.author
-            val receiver = event.message.mentions.members[0].user
+            val mentions = event.message.mentions.members
             val kiss = Bot().getEmoji("joikiss_gif")
 
-            val k = SendGif(event, "anime kiss", "## $kiss | ${sender.asMention} acabou de dar uma beijoca em ${receiver.asMention}")
+            val message = if (mentions.isNotEmpty()) {
+                val receiver = mentions[0].user
+                "## $kiss | ${sender.asMention} acabou de dar uma beijoca em ${receiver.asMention}"
+            } else {
+                "## $kiss | ${sender.asMention} deu um beijo em mimm!!"
+            }
+
+            val k = SendGif(event, "anime kiss", message)
             k.send()
         }
     }
