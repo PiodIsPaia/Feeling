@@ -18,6 +18,7 @@ class FFComponents : ListenerAdapter() {
     )
     private var roundNumber = 0
     private val results = mutableListOf<String>()
+    private val playersStats = mutableMapOf<String, Pair<Int, Int>>()
 
     override fun onButtonInteraction(event: ButtonInteractionEvent) {
         if (event.user.isBot) return
@@ -39,7 +40,8 @@ class FFComponents : ListenerAdapter() {
 
     private fun updateEmbed(event: ButtonInteractionEvent) {
         val buttonJoin = Button.success("button_ff_join", "Entrar")
-        val buttonPlayers = Button.secondary("button_ff_players_count", "Jogadores (min 6/${FreeFire.players.size})").withDisabled(true)
+        val buttonPlayers =
+            Button.secondary("button_ff_players_count", "Jogadores (min 6/${FreeFire.players.size})").withDisabled(true)
         var buttonPlay = Button.success("button_ff_play", "Começar")
 
         buttonPlay = if (FreeFire.players.size < FreeFire.minimum) {
@@ -48,7 +50,8 @@ class FFComponents : ListenerAdapter() {
             buttonPlay.withDisabled(false)
         }
 
-        val formattedPlayers = FreeFire.players.mapIndexed { index, player -> "${index + 1}. ``$player``" }.joinToString("\n")
+        val formattedPlayers =
+            FreeFire.players.mapIndexed { index, player -> "${index + 1}. ``$player``" }.joinToString("\n")
         val loading = Bot().getEmoji("loading")
 
         val title = if (FreeFire.players.size < 6) "$loading Aguardando os jogadores do X1" else "Rodada $roundNumber"
@@ -95,8 +98,12 @@ class FFComponents : ListenerAdapter() {
 
         val embed = embedBuilder.build()
         event.hook.editOriginalEmbeds(embed).queue {
+            // Limpar resultados para a próxima rodada
             results.clear()
+            // Verificar se existe um vencedor
             checkWinner(event)
+            // Mostrar estatísticas da partida
+            showGameStats(event)
         }
     }
 
@@ -122,6 +129,25 @@ class FFComponents : ListenerAdapter() {
         val word = words.random()
         FreeFire.players.remove(loser)
 
+        // Atualizar estatísticas do jogador vencedor
+        playersStats[winner] = playersStats.getOrDefault(winner, Pair(0, 0)).let { (wins, kills) -> Pair(wins + 1, kills) }
+        // Atualizar estatísticas do jogador perdedor
+        playersStats[loser] = playersStats.getOrDefault(loser, Pair(0, 0)).let { (wins, kills) -> Pair(wins, kills + 1) }
+
         return "``$winner`` $word ``$loser``"
+    }
+
+    private fun showGameStats(event: ButtonInteractionEvent) {
+        val embedBuilder = EmbedBuilder()
+            .setColor(Color.decode("#2b2d31"))
+            .setTitle("Estatísticas da Partida")
+
+        playersStats.forEach { (player, stats) ->
+            val (wins, kills) = stats
+            embedBuilder.addField("``$player``", "Vitórias: $wins, Mortes: $kills", false)
+        }
+
+        val embed = embedBuilder.build()
+        event.channel.sendMessageEmbeds(embed).queue()
     }
 }
