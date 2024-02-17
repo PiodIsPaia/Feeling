@@ -4,6 +4,7 @@ import com.github.feeling.src.config.Bot
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getPrefix
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import java.awt.Color
@@ -34,11 +35,15 @@ class Mention : ListenerAdapter() {
             val prefixCommandsActive = arePrefixCommandsActive(event.guild.id)
             val response = if (prefixCommandsActive) "**${prefix}ajuda ** ou **/ajuda**" else "**/ajuda**"
 
+            val adm = if (event.member?.hasPermission(Permission.ADMINISTRATOR) == true) "> 🚨 **ADM**: Para ativar ou desativar  ou ativar meus comandos por prefixo você pode utilizar o seguinte comando: ``@Feeling prefix commands on``**(Para ativar)** e ``@Felling prefix commands off``**(Para desativar)**" else ""
+
             val message = """
                 ## $greetingEmoji Olá! Eu sou a ``$botName``.
                 
                 > Meu prefixo neste servidor é: **$prefix**
                 > Para ver todos os comandos disponíveis, digite: $response
+                
+                $adm
             """.trimIndent()
 
             val embed = EmbedBuilder()
