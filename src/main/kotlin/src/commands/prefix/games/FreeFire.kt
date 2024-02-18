@@ -11,8 +11,8 @@ import java.awt.Color
 class FreeFire : ListenerAdapter() {
     companion object {
         val players = mutableListOf<String>()
-        val minimum: Int = 2
-        private var gameInProgress = false
+        val minimumPlayers: Int = 2
+        val playersLimit: Int = 8
     }
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
@@ -23,7 +23,7 @@ class FreeFire : ListenerAdapter() {
 
         if (content.startsWith(prefix + "ff")) {
             val buttonJoin = Button.success("button_ff_join", "Entrar")
-            val buttonPlayer = Button.secondary("button_ff_players_count", "Jogadores(min ${FreeFire.minimum}/${players.size})")
+            val buttonPlayer = Button.secondary("button_ff_players_count", "Jogadores(min ${FreeFire.minimumPlayers}/${players.size})")
                 .withDisabled(true)
 
             val loading = Bot().getEmoji("loading")

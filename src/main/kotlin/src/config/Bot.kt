@@ -13,7 +13,11 @@ class Bot {
         "network" to "<:network:1207477930851303506>",
         "power_hug" to "<:E_pochipowerhug_madebytayerexx:1208187964568633435>",
         "joikiss_gif" to "<a:joikiss:1208193747523993605>",
-        "gura_greeting" to "<:gawrgurawave:1208198970946490408>"
+        "gura_greeting" to "<:gawrgurawave:1208198970946490408>",
+        "dev" to "<:dev:1208784455079039007>",
+        "review" to "<:review:1208784861746298912>",
+        "cpu" to "<:cpu:1208785454284148798>",
+        "ram" to "<:ram:1208785556784549918>"
     )
 
     fun getEmoji(name: String): String? {

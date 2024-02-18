@@ -8,18 +8,21 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.InteractionHook
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 import java.awt.Color
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 class FFComponents : ListenerAdapter() {
+
     private val words: List<String> = listOf(
         "errou o hud e tomou 3 capas pro",
         "deu um tapa de desert em",
         "morreu atras do gelo pro",
         "deu 3 capas em"
     )
+
     private var roundNumber = 0
     private val results = mutableListOf<String>()
     private val playersStats = mutableMapOf<String, Pair<Int, Int>>()
@@ -30,38 +33,55 @@ class FFComponents : ListenerAdapter() {
     override fun onButtonInteraction(event: ButtonInteractionEvent) {
         if (event.user.isBot) return
 
-        if (event.componentId == "button_ff_join") {
-            val playerName = event.user.name
-            if (!FreeFire.players.contains(playerName)) {
-                FreeFire.players.add(playerName)
-                updateEmbed(event)
-            } else {
-                event.reply("Você já está no jogo.").setEphemeral(true).queue()
-            }
+        when (event.componentId) {
+            "button_ff_join" -> handleJoinButton(event)
+            "button_ff_play" -> startGame(event)
+            "button_ff_exit_game" -> handleExitButton(event)
         }
+    }
 
-        if (event.componentId == "button_ff_play") {
-            startGame(event)
+    private fun handleJoinButton(event: ButtonInteractionEvent) {
+        val playerName = event.user.name
+        if (!FreeFire.players.contains(playerName)) {
+            FreeFire.players.add(playerName)
+            updateEmbed(event)
+        } else {
+            event.reply("Você já está no jogo.").setEphemeral(true).queue()
+        }
+    }
+
+    private fun handleExitButton(event: ButtonInteractionEvent) {
+        val playerName = event.user.name
+        if (FreeFire.players.contains(playerName)) {
+            FreeFire.players.remove(playerName)
+            updateEmbed(event)
         }
     }
 
     private fun updateEmbed(event: ButtonInteractionEvent) {
-        val buttonJoin = Button.success("button_ff_join", "Entrar")
+        val buttonJoin = if (FreeFire.players.size < FreeFire.playersLimit) {
+            Button.success("button_ff_join", "Entrar")
+        } else {
+            Button.danger("button_ff_join", "Limite atingindo").withDisabled(true)
+        }
+
         val buttonPlayers =
-            Button.secondary("button_ff_players_count", "Jogadores (min ${FreeFire.minimum}/${FreeFire.players.size})").withDisabled(true)
+            Button.secondary("button_ff_players_count", "Jogadores (min ${FreeFire.minimumPlayers}/${FreeFire.players.size})").withDisabled(true)
         var buttonPlay = Button.success("button_ff_play", "Começar")
 
-        buttonPlay = if (FreeFire.players.size < FreeFire.minimum) {
+        buttonPlay = if (FreeFire.players.size < FreeFire.minimumPlayers) {
             buttonPlay.withDisabled(true)
         } else {
             buttonPlay.withDisabled(false)
         }
 
+        val buttonExit = Button.danger("button_ff_exit_game", "Sair")
+
         val formattedPlayers =
             FreeFire.players.mapIndexed { index, player -> "${index + 1}. ``$player``" }.joinToString("\n")
         val loading = Bot().getEmoji("loading")
 
-        val title = if (FreeFire.players.size < 6) "$loading Aguardando os jogadores do X1" else "Rodada $roundNumber"
+        val title = if (FreeFire.players.size < FreeFire.minimumPlayers) "$loading Aguardando os jogadores" else "A partida pode ser iniciada"
 
         val embedBuilder = EmbedBuilder()
             .setColor(Color.decode("#2b2d31"))
@@ -69,12 +89,11 @@ class FFComponents : ListenerAdapter() {
 
         val embed = embedBuilder.build()
 
-        message = event.editMessageEmbeds(embed).setActionRow(buttonPlay, buttonJoin, buttonPlayers).complete()
-
+        message = event.editMessageEmbeds(embed).setActionRow(buttonPlay, buttonJoin, buttonExit, buttonPlayers).complete()
     }
 
     private fun startGame(event: ButtonInteractionEvent) {
-        if (FreeFire.players.size < FreeFire.minimum) {
+        if (FreeFire.players.size < FreeFire.minimumPlayers) {
             event.reply("O jogo requer no mínimo dois jogadores para começar.").setEphemeral(true).queue()
             return
         }
@@ -90,7 +109,6 @@ class FFComponents : ListenerAdapter() {
             val player1 = pair[0]
             val player2 = pair[1]
             val result = simulateMatch(player1, player2)
-            // Agendar a exibição do resultado com atraso de 2 segundos
             scheduler.schedule({
                 results.add("**Partida ${index + 1}:** - **Resultado:** $result")
                 showRoundResults(event)
@@ -100,21 +118,19 @@ class FFComponents : ListenerAdapter() {
 
     private fun scheduleNextRound(event: ButtonInteractionEvent) {
         if (FreeFire.players.size >= 2) {
-            // Agendar a próxima rodada após 2 segundos
             scheduler.schedule({
                 startGame(event)
             }, 2, TimeUnit.SECONDS)
         } else if (FreeFire.players.size == 1) {
             checkWinner(event)
         } else {
-            // Se não houver jogadores suficientes, encerrar o torneio
             event.reply("Não há jogadores suficientes para continuar o torneio.").setEphemeral(true).queue()
         }
     }
 
     private fun showRoundResults(event: ButtonInteractionEvent) {
         val embedBuilder = EmbedBuilder()
-            .setColor(Color.decode("#2b2d31"))
+            .setColor(Color.decode(Bot().colorEmbed))
             .setTitle("Resultados da Rodada $roundNumber")
 
         results.forEach { result ->
@@ -124,9 +140,7 @@ class FFComponents : ListenerAdapter() {
         val embed = embedBuilder.build()
         message.editOriginalEmbeds(embed).queue {
             message.editOriginalComponents().queue()
-            // Limpar resultados para a próxima rodada
             results.clear()
-            // Verificar se existe um vencedor
             if (!isTournamentRunning) {
                 showGameStats(event)
             } else {
@@ -167,17 +181,18 @@ class FFComponents : ListenerAdapter() {
 
     private fun showGameStats(event: ButtonInteractionEvent) {
         val embedBuilder = EmbedBuilder()
-            .setColor(Color.decode("#2b2d31"))
+            .setColor(Color.decode(Bot().colorEmbed))
             .setTitle("Estatísticas da Partida")
 
         playersStats.forEach { (player, stats) ->
             val (wins, kills) = stats
-            embedBuilder.addField("``$player``", "Vitórias: $wins, Mortes: $kills", false)
+            embedBuilder.addField("**${player.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}**", "Vitórias: $wins\nMortes: $kills", true)
         }
 
         val embed = embedBuilder.build()
         event.channel.sendMessageEmbeds(embed).queue()
     }
 }
+
 
 
