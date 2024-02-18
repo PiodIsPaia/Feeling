@@ -5,8 +5,12 @@ import com.github.feeling.src.config.Bot
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.interactions.InteractionHook
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 import java.awt.Color
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 class FFComponents : ListenerAdapter() {
@@ -19,6 +23,9 @@ class FFComponents : ListenerAdapter() {
     private var roundNumber = 0
     private val results = mutableListOf<String>()
     private val playersStats = mutableMapOf<String, Pair<Int, Int>>()
+    private val scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
+    private var isTournamentRunning = false
+    private lateinit var message: InteractionHook
 
     override fun onButtonInteraction(event: ButtonInteractionEvent) {
         if (event.user.isBot) return
@@ -41,7 +48,7 @@ class FFComponents : ListenerAdapter() {
     private fun updateEmbed(event: ButtonInteractionEvent) {
         val buttonJoin = Button.success("button_ff_join", "Entrar")
         val buttonPlayers =
-            Button.secondary("button_ff_players_count", "Jogadores (min 6/${FreeFire.players.size})").withDisabled(true)
+            Button.secondary("button_ff_players_count", "Jogadores (min ${FreeFire.minimum}/${FreeFire.players.size})").withDisabled(true)
         var buttonPlay = Button.success("button_ff_play", "Começar")
 
         buttonPlay = if (FreeFire.players.size < FreeFire.minimum) {
@@ -62,7 +69,8 @@ class FFComponents : ListenerAdapter() {
 
         val embed = embedBuilder.build()
 
-        event.editMessageEmbeds(embed).setActionRow(buttonPlay, buttonJoin, buttonPlayers).queue()
+        message = event.editMessageEmbeds(embed).setActionRow(buttonPlay, buttonJoin, buttonPlayers).complete()
+
     }
 
     private fun startGame(event: ButtonInteractionEvent) {
@@ -71,6 +79,7 @@ class FFComponents : ListenerAdapter() {
             return
         }
 
+        isTournamentRunning = true
         roundNumber++
         updateEmbed(event)
 
@@ -81,10 +90,26 @@ class FFComponents : ListenerAdapter() {
             val player1 = pair[0]
             val player2 = pair[1]
             val result = simulateMatch(player1, player2)
-            results.add("**Partida ${index + 1}:** - **Resultado:** $result")
+            // Agendar a exibição do resultado com atraso de 2 segundos
+            scheduler.schedule({
+                results.add("**Partida ${index + 1}:** - **Resultado:** $result")
+                showRoundResults(event)
+            }, 2 * index.toLong(), TimeUnit.SECONDS)
         }
+    }
 
-        showRoundResults(event)
+    private fun scheduleNextRound(event: ButtonInteractionEvent) {
+        if (FreeFire.players.size >= 2) {
+            // Agendar a próxima rodada após 2 segundos
+            scheduler.schedule({
+                startGame(event)
+            }, 2, TimeUnit.SECONDS)
+        } else if (FreeFire.players.size == 1) {
+            checkWinner(event)
+        } else {
+            // Se não houver jogadores suficientes, encerrar o torneio
+            event.reply("Não há jogadores suficientes para continuar o torneio.").setEphemeral(true).queue()
+        }
     }
 
     private fun showRoundResults(event: ButtonInteractionEvent) {
@@ -97,13 +122,16 @@ class FFComponents : ListenerAdapter() {
         }
 
         val embed = embedBuilder.build()
-        event.hook.editOriginalEmbeds(embed).queue {
+        message.editOriginalEmbeds(embed).queue {
+            message.editOriginalComponents().queue()
             // Limpar resultados para a próxima rodada
             results.clear()
             // Verificar se existe um vencedor
-            checkWinner(event)
-            // Mostrar estatísticas da partida
-            showGameStats(event)
+            if (!isTournamentRunning) {
+                showGameStats(event)
+            } else {
+                scheduleNextRound(event)
+            }
         }
     }
 
@@ -119,6 +147,8 @@ class FFComponents : ListenerAdapter() {
             event.channel.sendMessageEmbeds(embed).queue {
                 FreeFire.players.clear()
                 roundNumber = 0
+                isTournamentRunning = false
+                showGameStats(event)
             }
         }
     }
@@ -129,9 +159,7 @@ class FFComponents : ListenerAdapter() {
         val word = words.random()
         FreeFire.players.remove(loser)
 
-        // Atualizar estatísticas do jogador vencedor
         playersStats[winner] = playersStats.getOrDefault(winner, Pair(0, 0)).let { (wins, kills) -> Pair(wins + 1, kills) }
-        // Atualizar estatísticas do jogador perdedor
         playersStats[loser] = playersStats.getOrDefault(loser, Pair(0, 0)).let { (wins, kills) -> Pair(wins, kills + 1) }
 
         return "``$winner`` $word ``$loser``"
@@ -151,3 +179,5 @@ class FFComponents : ListenerAdapter() {
         event.channel.sendMessageEmbeds(embed).queue()
     }
 }
+
+
