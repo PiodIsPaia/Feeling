@@ -1,4 +1,4 @@
-package com.github.feeling.src.commands.prefix.`fun`
+package com.github.feeling.src.systens
 
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import net.dv8tion.jda.api.EmbedBuilder

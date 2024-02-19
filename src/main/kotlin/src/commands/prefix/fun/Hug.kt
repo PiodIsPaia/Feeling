@@ -1,12 +1,10 @@
 package com.github.feeling.src.commands.prefix.`fun`
 
 import com.github.feeling.src.config.Bot
-import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getPrefix
-import net.dv8tion.jda.api.EmbedBuilder
+import com.github.feeling.src.systens.SendGif
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import java.awt.Color
 
 class Hug : ListenerAdapter() {
     override fun onMessageReceived(event: MessageReceivedEvent) {

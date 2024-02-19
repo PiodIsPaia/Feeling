@@ -23,7 +23,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.json/json
     implementation("org.json:json:20240205")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.12")
 }
 
 tasks.test {

@@ -1,4 +1,4 @@
-package com.github.feeling.src.commands.prefix.`fun`
+package com.github.feeling.src.systens
 
 import io.github.cdimascio.dotenv.dotenv
 import org.json.JSONObject

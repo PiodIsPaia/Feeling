@@ -15,14 +15,12 @@ import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 class FFComponents : ListenerAdapter() {
-
     private val words: List<String> = listOf(
         "errou o hud e tomou 3 capas pro",
         "deu um tapa de desert em",
         "morreu atras do gelo pro",
         "deu 3 capas em"
     )
-
     private var roundNumber = 0
     private val results = mutableListOf<String>()
     private val playersStats = mutableMapOf<String, Pair<Int, Int>>()
@@ -34,29 +32,26 @@ class FFComponents : ListenerAdapter() {
         if (event.user.isBot) return
 
         when (event.componentId) {
-            "button_ff_join" -> handleJoinButton(event)
+            "button_ff_join" -> {
+                val playerName = event.user.name
+                if (!FreeFire.players.contains(playerName)) {
+                    FreeFire.players.add(playerName)
+                    updateEmbed(event)
+                } else {
+                    event.reply("Você já está no jogo.").setEphemeral(true).queue()
+                }
+            }
             "button_ff_play" -> startGame(event)
-            "button_ff_exit_game" -> handleExitButton(event)
+            "button_ff_exit_game" -> {
+                val playerName = event.user.name
+                if (FreeFire.players.contains(playerName)) {
+                    FreeFire.players.remove(playerName)
+                    updateEmbed(event)
+                }
+            }
         }
     }
 
-    private fun handleJoinButton(event: ButtonInteractionEvent) {
-        val playerName = event.user.name
-        if (!FreeFire.players.contains(playerName)) {
-            FreeFire.players.add(playerName)
-            updateEmbed(event)
-        } else {
-            event.reply("Você já está no jogo.").setEphemeral(true).queue()
-        }
-    }
-
-    private fun handleExitButton(event: ButtonInteractionEvent) {
-        val playerName = event.user.name
-        if (FreeFire.players.contains(playerName)) {
-            FreeFire.players.remove(playerName)
-            updateEmbed(event)
-        }
-    }
 
     private fun updateEmbed(event: ButtonInteractionEvent) {
         val buttonJoin = if (FreeFire.players.size < FreeFire.playersLimit) {
@@ -89,8 +84,9 @@ class FFComponents : ListenerAdapter() {
 
         val embed = embedBuilder.build()
 
-        message = event.editMessageEmbeds(embed).setActionRow(buttonPlay, buttonJoin, buttonExit, buttonPlayers).complete()
+        message = event.editMessageEmbeds(embed).setActionRow(buttonPlay, buttonJoin, buttonExit ,buttonPlayers).complete()
     }
+
 
     private fun startGame(event: ButtonInteractionEvent) {
         if (FreeFire.players.size < FreeFire.minimumPlayers) {
@@ -102,31 +98,75 @@ class FFComponents : ListenerAdapter() {
         roundNumber++
         updateEmbed(event)
 
-        val shuffledPlayers = FreeFire.players.shuffled()
-        val pairs = shuffledPlayers.chunked(2)
+        var playersRemaining = FreeFire.players.toMutableList()
+        while (playersRemaining.size > 1) {
+            val shuffledPlayers = playersRemaining.shuffled()
 
-        pairs.forEachIndexed { index, pair ->
-            val player1 = pair[0]
-            val player2 = pair[1]
-            val result = simulateMatch(player1, player2)
-            scheduler.schedule({
-                results.add("**Partida ${index + 1}:** - **Resultado:** $result")
-                showRoundResults(event)
-            }, 2 * index.toLong(), TimeUnit.SECONDS)
+            val shuffledPlayersWithGhost = if (shuffledPlayers.size % 2 != 0) {
+                shuffledPlayers.toMutableList().apply { add("Jogador Fantasma") }
+            } else {
+                shuffledPlayers
+            }
+
+            // Cria os pares de jogadores para as partidas usando shuffledPlayersWithGhost
+            val matches = shuffledPlayersWithGhost.chunked(2)
+
+            val winners = mutableListOf<String>()
+
+            matches.forEachIndexed { index, match ->
+                val player1 = match[0]
+                val player2 = match[1]
+                val result = simulateMatch(player1, player2)
+
+                // Adiciona o vencedor à lista de vencedores desta rodada
+                winners.add(result.substring(2, result.indexOf("`", 2)))
+
+                // Agendar a exibição do resultado com atraso de 2 segundos
+                scheduler.schedule({
+                    results.add("**Partida ${index + 1}:** - **Resultado:** $result")
+                    showRoundResults(event)
+
+                    // Verifica se é a última partida da rodada
+                    if (index == matches.lastIndex) {
+                        // Se for a última partida, agende a próxima rodada ou a exibição das estatísticas finais
+                        if (playersRemaining.size > 1) {
+                            scheduler.schedule({
+                                startGame(event)
+                            }, 2, TimeUnit.SECONDS)
+                        } else {
+                            scheduler.schedule({
+                                showGameStats(event)
+                            }, 2, TimeUnit.SECONDS)
+                        }
+                    }
+                }, 2 * index.toLong(), TimeUnit.SECONDS)
+            }
+
+            // Atualiza os jogadores restantes para os vencedores desta rodada
+            playersRemaining = winners.toMutableList()
         }
     }
 
+
     private fun scheduleNextRound(event: ButtonInteractionEvent) {
+        // Verifica se ainda há jogadores suficientes para continuar o torneio
         if (FreeFire.players.size >= 2) {
+            // Limpa as estatísticas dos jogadores para a próxima rodada
+            playersStats.clear()
+
+            // Agendamento da próxima rodada
             scheduler.schedule({
                 startGame(event)
             }, 2, TimeUnit.SECONDS)
         } else if (FreeFire.players.size == 1) {
+            // Se houver apenas um jogador restante, ele é o vencedor
             checkWinner(event)
         } else {
+            // Se não houver jogadores suficientes, encerra o torneio
             event.reply("Não há jogadores suficientes para continuar o torneio.").setEphemeral(true).queue()
         }
     }
+
 
     private fun showRoundResults(event: ButtonInteractionEvent) {
         val embedBuilder = EmbedBuilder()
@@ -142,7 +182,9 @@ class FFComponents : ListenerAdapter() {
             message.editOriginalComponents().queue()
             results.clear()
             if (!isTournamentRunning) {
-                showGameStats(event)
+                if (FreeFire.players.size == 1) {
+                    showGameStats(event)
+                }
             } else {
                 scheduleNextRound(event)
             }
@@ -162,7 +204,6 @@ class FFComponents : ListenerAdapter() {
                 FreeFire.players.clear()
                 roundNumber = 0
                 isTournamentRunning = false
-                showGameStats(event)
             }
         }
     }
@@ -179,6 +220,7 @@ class FFComponents : ListenerAdapter() {
         return "``$winner`` $word ``$loser``"
     }
 
+
     private fun showGameStats(event: ButtonInteractionEvent) {
         val embedBuilder = EmbedBuilder()
             .setColor(Color.decode(Bot().colorEmbed))
@@ -193,6 +235,3 @@ class FFComponents : ListenerAdapter() {
         event.channel.sendMessageEmbeds(embed).queue()
     }
 }
-
-
-

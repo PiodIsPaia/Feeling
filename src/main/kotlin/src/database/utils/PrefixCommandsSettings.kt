@@ -11,12 +11,12 @@ private val db = Database.instance
 
 fun activePrefixCommands(event: MessageReceivedEvent, active: Boolean) {
     val database = db.client?.getDatabase("Feeling")
-    val collection = getOrCreateCollection(database, "prefix_command_active")
+    val collection = getOrCreateCollection(database, "guild_settings")
 
     val guildID = event.guild.id
 
     val filter = Document("guild_id", guildID)
-    val update = Document("\$set", Document("active", active))
+    val update = Document("\$set", Document("active_prefix_commands", active))
     val options = UpdateOptions().upsert(true)
 
     collection?.updateOne(filter, update, options)
@@ -24,12 +24,12 @@ fun activePrefixCommands(event: MessageReceivedEvent, active: Boolean) {
 
 fun arePrefixCommandsActive(guildId: String): Boolean {
     val database = db.client?.getDatabase("Feeling")
-    val collection = getOrCreateCollection(database, "prefix_command_active")
+    val collection = getOrCreateCollection(database, "guild_settings")
 
     val filter = Document("guild_id", guildId)
     val result = collection?.find(filter)?.firstOrNull()
 
-    return result?.getBoolean("active") ?: false
+    return result?.getBoolean("active_prefix_commands") ?: false
 }
 
 fun getPrefix(guild: Guild): String? {

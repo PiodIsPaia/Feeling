@@ -1,6 +1,7 @@
 package com.github.feeling.src.commands.prefix.bot
 
 import com.github.feeling.src.config.Bot
+import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getPrefix
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
@@ -19,7 +20,9 @@ class Status : ListenerAdapter() {
         val prefix = getPrefix(event.guild) ?: Bot().prefix
 
         if (content.startsWith(prefix + "status")) {
-            handleStatusBot(event)
+            val prefixCommandsActive = arePrefixCommandsActive(event.guild.id)
+
+            if (prefixCommandsActive) handleStatusBot(event) else return
         }
     }
 
@@ -43,7 +46,7 @@ class Status : ListenerAdapter() {
             - $loading **UpTime:** ${uptime.toHoursPart()}h ${uptime.toMinutesPart()}m ${uptime.toSecondsPart()}s
             - $network **Ping:** $ping ms
             - $ram **Ram:** $ramUsage MB
-            - $cpu **CPU:** $cpuUsage%
+            - $cpu **CPU:** $cpuUsage
         """.trimIndent()
 
         val embed = EmbedBuilder()
