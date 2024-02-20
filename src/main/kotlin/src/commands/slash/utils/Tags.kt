@@ -1,4 +1,4 @@
-package com.github.feeling.src.commands.slash.moderation
+package com.github.feeling.src.commands.slash.utils
 
 import com.github.feeling.src.commands.slash.Option
 import com.github.feeling.src.commands.slash.SlashCommandData
@@ -87,7 +87,6 @@ object HandleTag {
 
         tagManager.createTag(name, response)
 
-        // Atualize a contagem de tags após a criação
         val tagNumber = tagManager.getTagCount()
         event.hook.editOriginal("Tag **$tagNumber** criada com sucesso!\n\n**Nome da Tag:** ``$name``\n**Resposta:** ``$response``").queue()
     }

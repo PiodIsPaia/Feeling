@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.bson.Document
 
-class Tag : ListenerAdapter() {
+class TagCommand : ListenerAdapter() {
     private val bot = Bot()
     private val db = Database.instance
 

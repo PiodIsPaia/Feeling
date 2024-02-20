@@ -2,7 +2,7 @@ package com.github.feeling.src.commands.prefix.utils
 
 import com.github.feeling.src.config.Bot
 import com.github.feeling.src.database.utils.getPrefix
-import com.github.feeling.src.systens.VirusTotalSystem
+import com.github.feeling.src.systens.VirusTotalManager
 import io.github.cdimascio.dotenv.dotenv
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Message
@@ -17,7 +17,7 @@ import java.io.File
 class VirusTotal : ListenerAdapter() {
     private val bot = Bot()
     private val apiKey = dotenv().get("VT_KEY")
-    private val virusTotal = VirusTotalSystem(apiKey)
+    private val virusTotal = VirusTotalManager(apiKey)
 
     companion object {
         var scannedFile: File? = null

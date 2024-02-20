@@ -5,7 +5,7 @@ import java.io.File
 import java.security.MessageDigest
 
 
-class VirusTotalSystem(private val apiKey: String) {
+class VirusTotalManager(private val apiKey: String) {
     private val apiUrl = "https://www.virustotal.com/api/v3/"
 
     fun calculateHash(file: File): String {

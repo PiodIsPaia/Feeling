@@ -34,7 +34,7 @@ class TagManager(private val collection: MongoCollection<Document>, private val 
         tagsList.forEachIndexed { index, tag ->
             val name = tag.getString("name")
             val response = tag.getString("response")
-            val displayIndex = index + 1 // Ajuste para começar do índice 1
+            val displayIndex = index + 1
             tagInfo.append("**$displayIndex.** ``$name`` - ``$response``\n")
         }
 
