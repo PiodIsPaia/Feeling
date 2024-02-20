@@ -45,6 +45,6 @@ class VirusTotalSystem(private val apiKey: String) {
         val client = OkHttpClient()
         val response = client.newCall(request).execute()
 
-        return response.body?.string() ?: ""
+        return response.body.string() ?: ""
     }
 }

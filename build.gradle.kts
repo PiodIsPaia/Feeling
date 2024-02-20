@@ -24,6 +24,10 @@ dependencies {
     implementation("org.json:json:20240205")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.12")
+    // https://mvnrepository.com/artifact/com.google.zxing/core
+    implementation("com.google.zxing:core:3.5.3")
+    // https://mvnrepository.com/artifact/com.google.zxing/javase
+    implementation("com.google.zxing:javase:3.5.3")
 }
 
 tasks.test {

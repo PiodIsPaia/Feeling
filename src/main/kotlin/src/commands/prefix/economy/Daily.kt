@@ -28,6 +28,7 @@ class Daily : ListenerAdapter() {
                 val collection = getOrCreateCollection(database, "wallet")
 
                 val userId = event.author.id
+                val userName = event.author.name
 
                 val lastClaimDate = collection?.let { getUserLastClaimDate(it, userId) }
                 val currentDate = LocalDate.now()
@@ -41,12 +42,12 @@ class Daily : ListenerAdapter() {
 
                 val filter = Document("user_id", userId)
                 val update = Document("\$inc", Document("balance", random))
-                    .append("\$set", Document("lastDailyClaim", currentDate.toString()))
+                    .append("\$set", Document("lastDailyClaim", currentDate.toString()).append("username", userName))
                 val options = UpdateOptions().upsert(true)
 
                 collection?.updateOne(filter, update, options)
 
-                event.message.reply("Você recebeu **$random milhos** 🌽 no seu ``daily``").queue()
+                event.message.reply("Você, $userName, recebeu **$random milhos** 🌽 no seu ``daily``").queue()
             } else {
                 return
             }
@@ -61,5 +62,3 @@ class Daily : ListenerAdapter() {
         return result?.get("lastDailyClaim")?.let { LocalDate.parse(it as String) }
     }
 }
-
-
