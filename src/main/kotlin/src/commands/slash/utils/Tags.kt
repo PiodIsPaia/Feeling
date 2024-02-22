@@ -67,13 +67,13 @@ object HandleTag {
         event.deferReply().setEphemeral(false).queue()
 
         val guildId = event.guild!!.id
-        val database = db.client?.getDatabase("Feeling")
+        val database = db.client?.getDatabase(db.databaseName)
         val collection = getOrCreateCollection(database, "tags")
 
         val tagManager = TagManager(collection!!, guildId)
 
         if (tagManager.getTagCount() >= MAXTAGCOUNT) {
-            event.hook.editOriginal("Você já atingiu o limite máximo de tags para este servidor ($MAXTAGCOUNT)").queue()
+            event.hook.editOriginal("Você já atingiu o limite máximo de tags para este servidor (**$MAXTAGCOUNT**)").queue()
             return
         }
 
@@ -95,7 +95,7 @@ object HandleTag {
         event.deferReply().setEphemeral(false).queue()
 
         val guildId = event.guild!!.id
-        val database = db.client?.getDatabase("Feeling")
+        val database = db.client?.getDatabase(db.databaseName)
         val collection = getOrCreateCollection(database, "tags")
 
         val tagManager = TagManager(collection!!, guildId)
@@ -107,7 +107,7 @@ object HandleTag {
         event.deferReply().setEphemeral(false).queue()
 
         val guildId = event.guild!!.id
-        val database = db.client?.getDatabase("Feeling")
+        val database = db.client?.getDatabase(db.databaseName)
         val collection = getOrCreateCollection(database, "tags")
 
         val tagName = event.getOption("nome")?.asString

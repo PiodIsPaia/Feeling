@@ -16,6 +16,7 @@ class Client() {
         index.registerGlobal("com.github.feeling.src.commands.prefix", jda, "Prefix Command: ")
         index.registerGlobal("com.github.feeling.src.components", jda, "Component: ")
         index.registerGlobal("com.github.feeling.src.events", jda, "Event: ")
+        index.registerGlobal("com.github.feeling.src.modules", jda, "Module: ")
 
         val updatedJDA = jda.build()
 

@@ -1,6 +1,5 @@
 package com.github.feeling.src.commands.prefix.utils
 
-import com.github.feeling.src.commands.prefix.PrefixCommands
 import com.github.feeling.src.config.Bot
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getPrefix

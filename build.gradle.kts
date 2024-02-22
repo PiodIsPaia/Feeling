@@ -28,6 +28,10 @@ dependencies {
     implementation("com.google.zxing:core:3.5.3")
     // https://mvnrepository.com/artifact/com.google.zxing/javase
     implementation("com.google.zxing:javase:3.5.3")
+    implementation("io.ktor:ktor-server-core:2.3.8")
+    implementation("io.ktor:ktor-client-apache5:2.3.8")
+    implementation("io.ktor:ktor-client-okhttp:2.3.8")
+    implementation("com.aallam.openai:openai-client:3.7.0")
 }
 
 tasks.test {

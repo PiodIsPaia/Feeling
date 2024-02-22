@@ -1,23 +1,19 @@
 package com.github.feeling.src.commands.prefix
 
 import com.github.feeling.src.config.Bot
-import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.activePrefixCommands
-import com.github.feeling.src.database.utils.getOrCreateCollection
-import com.mongodb.client.model.UpdateOptions
 import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import org.bson.Document
 
-class PrefixCommands : ListenerAdapter() {
+class PrefixSystem : ListenerAdapter() {
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.author.isBot) return
 
-        val loading = Bot().getEmoji("loading")
-        val confirmGif = Bot().getEmoji("confirm_gif")
+        val bot = Bot()
+        val loading = bot.getEmoji("loading")
+        val confirmGif = bot.getEmoji("confirm_gif")
 
         when (event.message.contentRaw) {
             "${event.jda.selfUser.asMention} prefix commands on" -> {

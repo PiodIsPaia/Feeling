@@ -14,6 +14,7 @@ class Database private constructor() {
     }
 
     var client: MongoClient? = null
+    val databaseName: String = "Feeling"
 
     fun connect(uri: String): MongoDatabase? {
         return try {
@@ -26,7 +27,7 @@ class Database private constructor() {
             client!!.listDatabaseNames()
 
             println("Conectado ao MongoDB")
-            client!!.getDatabase("Feeling")
+            client!!.getDatabase(databaseName)
         } catch (e: Exception) {
             Logger.getLogger("Connection").log(Level.SEVERE, "Erro ao conectar ao MongoDB: ${e.message}", e)
             null

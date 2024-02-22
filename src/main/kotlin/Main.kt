@@ -4,8 +4,7 @@ import com.github.feeling.src.core.Client
 import com.github.feeling.src.database.Database
 import io.github.cdimascio.dotenv.dotenv
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
 fun main() {
     val dotenv = dotenv()
     val token = dotenv["TOKEN"]
@@ -15,5 +14,5 @@ fun main() {
     val database = Database.instance
 
     client.run(token = token)
-    database.connect(mongodbUri)
+    database.connect("mongodb://localhost:27017")
 }
