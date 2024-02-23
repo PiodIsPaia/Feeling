@@ -17,7 +17,8 @@ class Bot {
         "dev" to "<:dev:1208784455079039007>",
         "review" to "<:review:1208784861746298912>",
         "cpu" to "<:cpu:1208785454284148798>",
-        "ram" to "<:ram:1208785556784549918>"
+        "ram" to "<:ram:1208785556784549918>",
+        "yanfei" to "<:yanfei:1210335235506700378>"
     )
 
     fun getEmoji(name: String): String? {

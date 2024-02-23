@@ -25,7 +25,7 @@ class ActiveGames : ListenerAdapter() {
         val botMention = event.jda.selfUser.asMention
         val prefixCommandsActive = arePrefixCommandsActive(event.guild.id)
 
-        if (content.startsWith("$botMention games on", ignoreCase = true)) {
+        if (content.startsWith("$botMention enable games", ignoreCase = true)) {
             if (prefixCommandsActive) {
                 val message = event.message.reply("$loading Ativando meu módulo de jogos...").complete()
 
@@ -37,7 +37,7 @@ class ActiveGames : ListenerAdapter() {
             } else return
         }
 
-        if (content.startsWith("$botMention games off", ignoreCase = true)) {
+        if (content.startsWith("$botMention disable games", ignoreCase = true)) {
             if (prefixCommandsActive) {
                 val message = event.message.reply("$loading Desativando meu módulo de jogos...").complete()
 

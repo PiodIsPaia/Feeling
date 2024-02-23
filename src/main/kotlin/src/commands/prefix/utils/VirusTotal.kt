@@ -1,6 +1,8 @@
 package com.github.feeling.src.commands.prefix.utils
 
 import com.github.feeling.src.config.Bot
+import com.github.feeling.src.database.Database
+import com.github.feeling.src.database.utils.getOrCreateCollection
 import com.github.feeling.src.database.utils.getPrefix
 import com.github.feeling.src.systens.VirusTotalManager
 import io.github.cdimascio.dotenv.dotenv
@@ -10,6 +12,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.components.buttons.Button
+import org.bson.Document
 import org.json.JSONObject
 import java.awt.Color
 import java.io.File
@@ -18,6 +21,7 @@ class VirusTotal : ListenerAdapter() {
     private val bot = Bot()
     private val apiKey = dotenv().get("VT_KEY")
     private val virusTotal = VirusTotalManager(apiKey)
+    private val db = Database.instance
 
     companion object {
         var scannedFile: File? = null
@@ -32,6 +36,7 @@ class VirusTotal : ListenerAdapter() {
         val prefix = getPrefix(event.guild) ?: bot.prefix
 
         if (event.message.contentRaw.startsWith(prefix + "vt")) {
+            if (!isVIP(event.author.id)) return
             handleVirusTotalCommand(event)
         }
     }
@@ -123,5 +128,14 @@ class VirusTotal : ListenerAdapter() {
         }
 
         return embedBuilder.build()
+    }
+    private fun isVIP(userId: String): Boolean {
+        val database = db.client?.getDatabase("Feeling")
+        val collection = getOrCreateCollection(database, "users_premium")
+
+        val filter = Document("user_id", userId)
+        val result = collection?.find(filter)?.firstOrNull()
+
+        return result != null
     }
 }

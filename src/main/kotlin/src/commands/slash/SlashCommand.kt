@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.commands.Command
+import net.dv8tion.jda.api.interactions.commands.Command.Choice
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -32,8 +34,9 @@ data class Option(
     val name: String,
     val description: String,
     val required: Boolean = false,
-    val channelType: ChannelType? = null
+    val channelType: ChannelType? = null,
 )
+
 
 data class SubCommand(
     val name: String,
@@ -67,6 +70,8 @@ fun registerSlashCommands(jda: JDA, commandPackage: String) {
             for (option in commandData.options) {
                 val optionData = OptionData(option.type, option.name, option.description)
                     .setRequired(option.required)
+
+
                 if (option.channelType != null) {
                     optionData.setChannelTypes(option.channelType)
                 }
