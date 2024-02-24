@@ -1,6 +1,6 @@
 package com.github.feeling.src.components.premium
 
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.getOrCreateCollection
 import com.mongodb.client.model.Filters
@@ -17,7 +17,7 @@ import kotlin.concurrent.schedule
 
 class BuyPremium : ListenerAdapter() {
     private val db = Database.instance
-    private val bot = Bot()
+    private val config = Config()
 
     override fun onButtonInteraction(event: ButtonInteractionEvent) {
         when (event.componentId) {

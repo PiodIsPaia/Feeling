@@ -1,6 +1,6 @@
 package com.github.feeling.src.modules.`fun`
 
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.getOrCreateCollection
 import com.mongodb.client.model.UpdateOptions
@@ -12,25 +12,12 @@ import org.bson.Document
 
 class ActivateIA : ListenerAdapter() {
     private val db = Database.instance
-    private val bot = Bot()
-    private val botOwner = dotenv()["BOT_OWNER_ID"]
+    private val config = Config()
 
-    private val loading = bot.getEmoji("loading")
-    private val confirmGif = bot.getEmoji("confirm_gif")
+    private val loading = config.getEmoji("loading")
+    private val confirmGif = config.getEmoji("confirm_gif")
 
-    override fun onMessageReceived(event: MessageReceivedEvent) {
-        if (event.author.isBot) return
-
-        val content = event.message.contentRaw
-        val botMention = event.jda.selfUser.asMention
-
-        when (content) {
-            "$botMention enable ia" -> enableModule(event)
-            "$botMention disable ia" -> disableModule(event)
-        }
-    }
-
-    private fun enableModule(event: MessageReceivedEvent) {
+     fun enableModule(event: MessageReceivedEvent) {
         if (!event.member!!.hasPermission(Permission.ADMINISTRATOR)) {
             event.message.reply("Você não tem permissão para executar esta ação!").queue()
             return
@@ -44,7 +31,7 @@ class ActivateIA : ListenerAdapter() {
         message.editMessage("$confirmGif módulo foi ativado com sucesso!").queue()
     }
 
-    private fun disableModule(event: MessageReceivedEvent) {
+    fun disableModule(event: MessageReceivedEvent) {
         if (!event.member!!.hasPermission(Permission.ADMINISTRATOR)) {
             event.message.reply("Você não tem permissão para executar esta ação!").queue()
             return

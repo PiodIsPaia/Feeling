@@ -1,6 +1,6 @@
 package com.github.feeling.src.events.bot
 
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getPrefix
 import net.dv8tion.jda.api.EmbedBuilder
@@ -14,7 +14,7 @@ class Mention : ListenerAdapter() {
         if (event.author.isBot) return
 
         val botMention = event.jda.selfUser.asMention
-        val prefix = getPrefix(event.guild) ?: Bot().prefix
+        val prefix = getPrefix(event.guild) ?: Config().prefix
 
         if (isBotMentionedAlone(event.message.contentRaw, botMention)) {
             val botMentionResponder = BotMentionResponder(event, prefix)
@@ -29,7 +29,7 @@ class Mention : ListenerAdapter() {
     private class BotMentionResponder(private val event: MessageReceivedEvent, private val prefix: String) {
 
         fun respondToMention() {
-            val greetingEmoji = Bot().getEmoji("gura_greeting")
+            val greetingEmoji = Config().getEmoji("gura_greeting")
             val botName = event.jda.selfUser.name
 
             val prefixCommandsActive = arePrefixCommandsActive(event.guild.id)
@@ -49,7 +49,7 @@ class Mention : ListenerAdapter() {
             val embed = EmbedBuilder()
                 .setAuthor(event.jda.selfUser.name, null, event.jda.selfUser.avatarUrl ?: event.jda.selfUser.defaultAvatarUrl)
                 .setDescription(message)
-                .setColor(Color.decode(Bot().colorEmbed))
+                .setColor(Color.decode(Config().colorEmbed))
                 .build()
 
             event.message.replyEmbeds(embed).queue {

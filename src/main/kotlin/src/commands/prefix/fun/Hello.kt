@@ -1,6 +1,6 @@
 package com.github.feeling.src.commands.prefix.`fun`
 
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getPrefix
 import com.github.feeling.src.systens.TenorSearch
@@ -10,28 +10,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import java.awt.Color
 
 class Hello : ListenerAdapter() {
-    override fun onMessageReceived(event: MessageReceivedEvent) {
-        if (event.author.isBot) return
-
-        val prefix = getPrefix(event.guild) ?: Bot().prefix
-        val contentRaw = event.message.contentRaw.lowercase()
-
-        if (contentRaw.startsWith(prefix)) {
-            val command = contentRaw.substring(prefix.length).trim()
-
-            if (isGreetingCommand(command)) {
-                GreetingResponder(event).respondToGreeting()
-            }
-        }
-    }
-
-    private fun isGreetingCommand(command: String): Boolean {
-        val greetings = arrayOf("hi", "hello", "hl")
-        return greetings.any { command.startsWith(it) }
-    }
-
-    private class GreetingResponder(private val event: MessageReceivedEvent) {
-        fun respondToGreeting() {
+    class GreetingResponder(private val event: MessageReceivedEvent) {
+        fun execute() {
             val sender = event.author
             val prefixCommandsActive = arePrefixCommandsActive(event.guild.id)
 
@@ -48,7 +28,7 @@ class Hello : ListenerAdapter() {
                         .setColor(Color.decode("#2b2d31"))
                         .build()
 
-                    val greetingEmoji = Bot().getEmoji("gura_greeting")
+                    val greetingEmoji = Config().getEmoji("gura_greeting")
 
                     event.message.replyEmbeds(embed)
                         .addContent("## $greetingEmoji | ${sender.asMention} está saudando a todos ").queue()

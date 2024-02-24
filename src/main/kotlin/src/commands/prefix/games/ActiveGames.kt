@@ -1,8 +1,7 @@
 package com.github.feeling.src.commands.prefix.games
 
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
-import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getOrCreateCollection
 import com.mongodb.client.model.UpdateOptions
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -10,43 +9,32 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.bson.Document
 
 class ActiveGames : ListenerAdapter() {
-    private val bot = Bot()
-    private val loading = bot.getEmoji("loading")
-    private val confirmGif = bot.getEmoji("confirm_gif")
+    private val config = Config()
+    private val loading = config.getEmoji("loading")
+    private val confirmGif = config.getEmoji("confirm_gif")
 
     private val db = Database.instance
     private val guildSettingCollectionName = "guild_settings"
     private val activeGamesField = "active_games"
 
-    override fun onMessageReceived(event: MessageReceivedEvent) {
-        if (event.author.isBot) return
+    fun execute(event: MessageReceivedEvent, enable: Boolean) {
+        if (enable) {
+            val message = event.message.reply("$loading Ativando meu módulo de jogos...").complete()
 
-        val content = event.message.contentRaw
-        val botMention = event.jda.selfUser.asMention
-        val prefixCommandsActive = arePrefixCommandsActive(event.guild.id)
+            updateActiveGames(event.guild.id, true)
 
-        if (content.startsWith("$botMention enable games", ignoreCase = true)) {
-            if (prefixCommandsActive) {
-                val message = event.message.reply("$loading Ativando meu módulo de jogos...").complete()
+            Thread.sleep(2000)
 
-                updateActiveGames(event.guild.id, true)
+            message.editMessage("$confirmGif Módulo de jogos foi ativado.").queue()
+        } else {
 
-                Thread.sleep(2000)
+            val message = event.message.reply("$loading Desativando meu módulo de jogos...").complete()
 
-                message.editMessage("$confirmGif Módulo de jogos foi ativado.").queue()
-            } else return
-        }
+            updateActiveGames(event.guild.id, false)
 
-        if (content.startsWith("$botMention disable games", ignoreCase = true)) {
-            if (prefixCommandsActive) {
-                val message = event.message.reply("$loading Desativando meu módulo de jogos...").complete()
+            Thread.sleep(2000)
 
-                updateActiveGames(event.guild.id, false)
-
-                Thread.sleep(2000)
-
-                message.editMessage("$confirmGif Módulo de jogos foi desativado.").queue()
-            } else return
+            message.editMessage("$confirmGif Módulo de jogos foi desativado.").queue()
         }
     }
 

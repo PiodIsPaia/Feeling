@@ -1,6 +1,6 @@
 package com.github.feeling.src.commands.prefix.utils
 
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.getOrCreateCollection
 import com.github.feeling.src.database.utils.getPrefix
@@ -18,7 +18,7 @@ import java.awt.Color
 import java.io.File
 
 class VirusTotal : ListenerAdapter() {
-    private val bot = Bot()
+    private val config = Config()
     private val apiKey = dotenv().get("VT_KEY")
     private val virusTotal = VirusTotalManager(apiKey)
     private val db = Database.instance
@@ -30,15 +30,11 @@ class VirusTotal : ListenerAdapter() {
         lateinit var button: Button
     }
 
-    override fun onMessageReceived(event: MessageReceivedEvent) {
-        if (event.author.isBot) return
+    fun execute(event: MessageReceivedEvent) {
 
-        val prefix = getPrefix(event.guild) ?: bot.prefix
+        if (!isVIP(event.author.id)) return
+        handleVirusTotalCommand(event)
 
-        if (event.message.contentRaw.startsWith(prefix + "vt")) {
-            if (!isVIP(event.author.id)) return
-            handleVirusTotalCommand(event)
-        }
     }
 
     private fun handleVirusTotalCommand(event: MessageReceivedEvent) {
@@ -51,7 +47,7 @@ class VirusTotal : ListenerAdapter() {
     }
 
     private fun handleAttachment(event: MessageReceivedEvent, attachment: Message.Attachment) {
-        val loading = bot.getEmoji("loading")
+        val loading = config.getEmoji("loading")
         val message = event.message.reply("$loading Verificando o arquivo, aguarde uns segundos!").complete()
 
         val file = downloadAttachment(attachment)
@@ -73,7 +69,7 @@ class VirusTotal : ListenerAdapter() {
 
         embed = EmbedBuilder()
             .setDescription(msg)
-            .setColor(Color.decode(bot.colorEmbed))
+            .setColor(Color.decode(config.colorEmbed))
             .build()
 
         button = Button.secondary("view_results", "Resultados")
@@ -129,6 +125,7 @@ class VirusTotal : ListenerAdapter() {
 
         return embedBuilder.build()
     }
+
     private fun isVIP(userId: String): Boolean {
         val database = db.client?.getDatabase("Feeling")
         val collection = getOrCreateCollection(database, "users_premium")

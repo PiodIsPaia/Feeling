@@ -1,6 +1,6 @@
 package com.github.feeling.src.commands.prefix.admin
 
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.getOrCreateCollection
 import com.github.feeling.src.database.utils.getPrefix
@@ -21,9 +21,9 @@ class AddPremium : ListenerAdapter() {
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.author.isBot) return
 
-        val bot = Bot()
+        val config = Config()
         val content = event.message.contentRaw
-        val prefix = getPrefix(event.guild) ?: bot.prefix
+        val prefix = getPrefix(event.guild) ?: config.prefix
 
         val regex = Regex("""${Regex.escape(prefix)}add premium -user ?(\d+) -duration (\d+)\s*(\w+)""")
         matchResult = regex.find(content) ?: return

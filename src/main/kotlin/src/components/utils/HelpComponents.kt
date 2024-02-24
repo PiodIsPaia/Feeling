@@ -1,7 +1,7 @@
 package com.github.feeling.src.components.utils
 
 import com.github.feeling.src.commands.prefix.bot.Help
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getOrCreateCollection
@@ -15,13 +15,13 @@ import org.bson.Document
 import java.awt.Color
 
 class HelpComponents : ListenerAdapter() {
-    private val bot = Bot()
+    private val config = Config()
     private val db = Database.instance
     override fun onStringSelectInteraction(event: StringSelectInteractionEvent) {
         if (event.selectMenu.id == "menu_help_command") {
             val selectedValues = event.values
 
-            val prefix = event.guild?.let { getPrefix(it) } ?: bot.prefix
+            val prefix = event.guild?.let { getPrefix(it) } ?: config.prefix
 
             for (option in selectedValues) {
                 when (option) {
@@ -80,7 +80,7 @@ class HelpComponents : ListenerAdapter() {
         val prefixCommandsActive = arePrefixCommandsActive(event.guild!!.id)
 
         val descriptionPrefix = if (prefixCommandsActive) buildString {
-            appendLine("## ($prefix)Comands por prefixo:")
+            appendLine("## ($prefix)Comandos por prefixo:")
             appendLine("- Em breve...")
         } else ""
 
@@ -88,6 +88,9 @@ class HelpComponents : ListenerAdapter() {
             appendLine("## (/)Slash Commands")
             appendLine("- ``/ban`` (Serve para banir algum encrenqueiro de seu servidor)")
             appendLine("- ``/limpar`` (Apague mensagens com menos de 7 dias de envio)")
+            appendLine("- ``/tag criar`` (Crie uma **Tag** para agilizar na resposta de perguntas muitos frequentes no seu servidor)")
+            appendLine("- ``/tag ver`` (Vizualize as **Tags** existente no servidor)")
+            appendLine("- ``/tag excluir`` (Exclua uma tag a partir de seu nome)")
         }
 
         val message = buildString {
@@ -177,8 +180,8 @@ class HelpComponents : ListenerAdapter() {
     }
 
     private fun handlerOptionModules(event: StringSelectInteractionEvent) {
-        val toggleOn = bot.getEmoji("toggle_on")
-        val toggleOff = bot.getEmoji("toggle_off")
+        val toggleOn = config.getEmoji("toggle_on")
+        val toggleOff = config.getEmoji("toggle_off")
         val botName = event.jda.selfUser.name
 
         val prefixCommandsActive = arePrefixCommandsActive(event.guild!!.id)

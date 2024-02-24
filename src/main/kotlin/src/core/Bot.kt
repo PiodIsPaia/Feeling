@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
 
-class Index {
+class Bot {
     fun registerCommands(packageName: String, jda: JDABuilder, type: String) {
         var commandsLoaded = false
         val errorMessages = mutableListOf<String>()
@@ -47,7 +47,7 @@ class Index {
         }
     }
 
-    fun registerGlobal(packageName: String, jda: JDABuilder, type: String) {
+    fun registerListener(packageName: String, jda: JDABuilder, type: String) {
         var componentsAndEventsLoaded = false
         val errorMessages = mutableListOf<String>()
 

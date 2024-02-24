@@ -1,7 +1,6 @@
 package com.github.feeling.src.modules.`fun`
 
-import com.github.feeling.src.commands.prefix.admin.AddPremium
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.getOrCreateCollection
 import com.github.feeling.src.database.utils.getPrefix
@@ -25,7 +24,7 @@ class IAChat : ListenerAdapter() {
         val isActive = isActive(guildId)
         val botMention = event.jda.selfUser.asMention
         val content = event.message.contentRaw
-        val prefix = getPrefix(event.guild) ?: Bot().prefix
+        val prefix = getPrefix(event.guild) ?: Config().prefix
 
         if (isActive) {
             if (!isVIP(event.author.id)) return

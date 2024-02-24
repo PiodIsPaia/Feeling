@@ -1,7 +1,7 @@
 package com.github.feeling.src.components.freefire
 
 import com.github.feeling.src.commands.prefix.games.FreeFire
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
@@ -74,7 +74,7 @@ class FFComponents : ListenerAdapter() {
 
         val formattedPlayers =
             FreeFire.players.mapIndexed { index, player -> "${index + 1}. ``$player``" }.joinToString("\n")
-        val loading = Bot().getEmoji("loading")
+        val loading = Config().getEmoji("loading")
 
         val title = if (FreeFire.players.size < FreeFire.minimumPlayers) "$loading Aguardando os jogadores" else "A partida pode ser iniciada"
 
@@ -170,7 +170,7 @@ class FFComponents : ListenerAdapter() {
 
     private fun showRoundResults(event: ButtonInteractionEvent) {
         val embedBuilder = EmbedBuilder()
-            .setColor(Color.decode(Bot().colorEmbed))
+            .setColor(Color.decode(Config().colorEmbed))
             .setTitle("Resultados da Rodada $roundNumber")
 
         results.forEach { result ->
@@ -195,7 +195,7 @@ class FFComponents : ListenerAdapter() {
         if (FreeFire.players.size == 1) {
             val winner = FreeFire.players.first()
             val embed = EmbedBuilder()
-                .setColor(Color.decode(Bot().colorEmbed))
+                .setColor(Color.decode(Config().colorEmbed))
                 .setTitle("🏆 O Vencedor do X1")
                 .setDescription("O vencedor do torneio é: ``$winner``")
                 .build()
@@ -223,7 +223,7 @@ class FFComponents : ListenerAdapter() {
 
     private fun showGameStats(event: ButtonInteractionEvent) {
         val embedBuilder = EmbedBuilder()
-            .setColor(Color.decode(Bot().colorEmbed))
+            .setColor(Color.decode(Config().colorEmbed))
             .setTitle("Estatísticas da Partida")
 
         playersStats.forEach { (player, stats) ->

@@ -1,14 +1,11 @@
 package com.github.feeling.src.commands.slash.premium
 
-import com.github.feeling.src.commands.slash.Option
 import com.github.feeling.src.commands.slash.SlashCommandData
 import com.github.feeling.src.commands.slash.SubCommand
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import net.dv8tion.jda.api.interactions.commands.Command.Choice
-import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 import java.awt.Color
 
@@ -29,8 +26,8 @@ class Premium : SlashCommandData(
 )
 
 object HandlerPremium {
-    private val bot = Bot()
-    private val color = bot.colorEmbed
+    private val config = Config()
+    private val color = config.colorEmbed
 
     fun buy(event: SlashCommandInteractionEvent) {
         event.deferReply().setEphemeral(true).queue()

@@ -1,6 +1,6 @@
 package com.github.feeling.src.config
 
-class Bot {
+class Config {
     val prefix: String = "f?"
     val colorEmbed: String = "#2b2d31"
 
@@ -18,7 +18,11 @@ class Bot {
         "review" to "<:review:1208784861746298912>",
         "cpu" to "<:cpu:1208785454284148798>",
         "ram" to "<:ram:1208785556784549918>",
-        "yanfei" to "<:yanfei:1210335235506700378>"
+        "yanfei" to "<:yanfei:1210335235506700378>",
+        "square_cloud" to "<:logo:1210616286581751909>",
+        "java" to "<:java:1210617311086776410>",
+        "cluster" to "<:copiar:1210617660187090944>",
+        "ssd" to "<:ssd:1210730812820033617>"
     )
 
     fun getEmoji(name: String): String? {

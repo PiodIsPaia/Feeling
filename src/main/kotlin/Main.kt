@@ -9,10 +9,11 @@ fun main() {
     val dotenv = dotenv()
     val token = dotenv["TOKEN"]
     val mongodbUri = dotenv["MONGO_URI"]
+    val mongodbLocal = "mongodb://localhost:27017/"
 
     val client = Client()
     val database = Database.instance
 
     client.run(token = token)
-    database.connect("mongodb://localhost:27017")
+    database.connect(mongodbUri)
 }

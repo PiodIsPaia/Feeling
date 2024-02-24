@@ -1,6 +1,6 @@
 package com.github.feeling.src.commands.prefix.economy
 
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getOrCreateCollection
@@ -11,25 +11,7 @@ import org.bson.Document
 
 class Wallet : ListenerAdapter() {
     private val db = Database.instance
-
-    override fun onMessageReceived(event: MessageReceivedEvent) {
-        if (event.author.isBot) return
-
-        val content = event.message.contentRaw
-        val prefix = getPrefix(event.guild) ?: Bot().prefix
-
-        // Verificar se a mensagem contém o comando de saldo
-        if (content.startsWith(prefix + "saldo")) {
-            val prefixCommandsActive = arePrefixCommandsActive(event.guild.id)
-            if (prefixCommandsActive) {
-                handleBalanceCommand(event)
-            } else {
-                return
-            }
-        }
-    }
-
-    private fun handleBalanceCommand(event: MessageReceivedEvent) {
+     fun execute(event: MessageReceivedEvent) {
         val mentionedMembers = event.message.mentions.members
 
         if (mentionedMembers.isNotEmpty()) {

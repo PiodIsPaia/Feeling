@@ -1,6 +1,6 @@
 package com.github.feeling.src.commands.prefix.bot
 
-import com.github.feeling.src.config.Bot
+import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getPrefix
 import net.dv8tion.jda.api.EmbedBuilder
@@ -13,31 +13,14 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu
 import java.awt.Color
 
 class Help : ListenerAdapter() {
-    private val bot = Bot()
+    private val config = Config()
 
     companion object {
         lateinit var embed: MessageEmbed
         lateinit var menu: SelectMenu
     }
 
-    override fun onMessageReceived(event: MessageReceivedEvent) {
-        if (event.author.isBot) return
-
-        val content = event.message.contentRaw
-        val prefix = getPrefix(event.guild) ?: bot.prefix
-
-        if (content.startsWith(prefix + "ajuda") || content.startsWith(prefix + "help")) {
-            val prefixCommandsActive = arePrefixCommandsActive(event.guild.id)
-
-            if (prefixCommandsActive) {
-                handleHelpCommand(event)
-            } else {
-                return
-            }
-        }
-    }
-
-    private fun handleHelpCommand(event: MessageReceivedEvent) {
+    fun execute(event: MessageReceivedEvent) {
         val botName = event.jda.selfUser.name
         val message = getMessage(botName)
         menu = createHelpMenu()
@@ -45,7 +28,7 @@ class Help : ListenerAdapter() {
         embed = EmbedBuilder()
             .setThumbnail("https://emoji.discadia.com/emojis/a07a40fb-d224-452e-b125-abc0cefbc8ea.PNG")
             .setDescription(message)
-            .setColor(Color.decode(bot.colorEmbed))
+            .setColor(Color.decode(config.colorEmbed))
             .setFooter("Aqui estão as categorias de comandos disponíveis:", event.jda.selfUser.avatarUrl)
             .build()
 
