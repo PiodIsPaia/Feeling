@@ -127,12 +127,12 @@ class VirusTotal : ListenerAdapter() {
     }
 
     private fun isVIP(userId: String): Boolean {
-        val database = db.client?.getDatabase("Feeling")
-        val collection = getOrCreateCollection(database, "users_premium")
+        val database = db.client?.getDatabase(db.databaseName)
+        val collection = getOrCreateCollection(database, "users")
 
         val filter = Document("user_id", userId)
         val result = collection?.find(filter)?.firstOrNull()
 
-        return result != null
+        return result?.get("premium") != null
     }
 }

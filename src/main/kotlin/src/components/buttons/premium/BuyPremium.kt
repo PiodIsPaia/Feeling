@@ -1,4 +1,4 @@
-package com.github.feeling.src.components.premium
+package com.github.feeling.src.components.buttons.premium
 
 import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database

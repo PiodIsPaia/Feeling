@@ -1,19 +1,12 @@
-package com.github.feeling.src.components
+package com.github.feeling.src.components.buttons.premium.vt
 
 import com.github.feeling.src.commands.prefix.utils.VirusTotal
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 
-class VirusTotalComponent : ListenerAdapter() {
-    override fun onButtonInteraction(event: ButtonInteractionEvent) {
-        when (event.componentId) {
-            "view_results" -> handleViewResults(event)
-            "back_embed_vt" -> handleBackToEmbed(event)
-        }
-    }
 
-    private fun handleViewResults(event: ButtonInteractionEvent) {
+class VirusTotalComponent {
+    fun handleViewResults(event: ButtonInteractionEvent) {
         val file = VirusTotal.scannedFile
         val report = VirusTotal.analysisInfo
 
@@ -27,7 +20,7 @@ class VirusTotalComponent : ListenerAdapter() {
         }
     }
 
-    private fun handleBackToEmbed(event: ButtonInteractionEvent) {
+    fun handleBackToEmbed(event: ButtonInteractionEvent) {
         val embed = VirusTotal.embed
         val button = VirusTotal.button
 

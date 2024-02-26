@@ -1,6 +1,7 @@
 package com.github.feeling.src.events.bot
 
 import com.github.feeling.src.config.Config
+import com.github.feeling.src.database.schema.Guild
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getPrefix
 import net.dv8tion.jda.api.EmbedBuilder
@@ -14,7 +15,7 @@ class Mention : ListenerAdapter() {
         if (event.author.isBot) return
 
         val botMention = event.jda.selfUser.asMention
-        val prefix = getPrefix(event.guild) ?: Config().prefix
+        val prefix = getPrefix(Guild(event.guild.id, event.guild.name)) ?: Config().prefix
 
         if (isBotMentionedAlone(event.message.contentRaw, botMention)) {
             val botMentionResponder = BotMentionResponder(event, prefix)

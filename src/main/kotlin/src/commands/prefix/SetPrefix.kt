@@ -1,5 +1,6 @@
 package com.github.feeling.src.commands.prefix
 
+import com.github.feeling.src.database.schema.Guild
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.updatePrefix
 import net.dv8tion.jda.api.Permission
@@ -31,7 +32,7 @@ class SetPrefix : ListenerAdapter() {
                             return
                         }
                         newPrefix.isNotBlank() -> {
-                            updatePrefix(event.guild, newPrefix)
+                            updatePrefix(Guild(event.guild.id, event.guild.name), newPrefix)
                             event.message.reply("O prefixo foi atualizado para '$newPrefix'.").queue()
                         }
                         else -> event.message.reply("Você precisa especificar um novo prefixo.").queue()

@@ -7,17 +7,16 @@ import com.github.feeling.src.commands.prefix.economy.Wallet
 import com.github.feeling.src.commands.prefix.`fun`.Hello
 import com.github.feeling.src.commands.prefix.`fun`.Hug
 import com.github.feeling.src.commands.prefix.`fun`.Kiss
-import com.github.feeling.src.commands.prefix.games.ActiveGames
-import com.github.feeling.src.commands.prefix.games.FreeFire
 import com.github.feeling.src.commands.prefix.squarecloud.Status
 import com.github.feeling.src.commands.prefix.utils.Ping
 import com.github.feeling.src.commands.prefix.utils.VirusTotal
 import com.github.feeling.src.config.Config
+import com.github.feeling.src.database.schema.Guild
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getPrefix
 import com.github.feeling.src.database.utils.getTagDocument
 import com.github.feeling.src.database.utils.getTagsArray
-import com.github.feeling.src.modules.`fun`.ActivateIA
+import com.github.feeling.src.modules.ia.ActivateIA
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 
@@ -27,7 +26,7 @@ class PrefixCommands : ListenerAdapter() {
 
         val content = event.message.contentRaw
         val config = Config()
-        val prefix = getPrefix(event.guild) ?: config.prefix
+        val prefix = getPrefix(Guild(event.guild.id, event.guild.name)) ?: config.prefix
 
         val botMention = "<@${event.jda.selfUser.id}>"
 
@@ -47,12 +46,6 @@ class PrefixCommands : ListenerAdapter() {
             }
             content.startsWith("$botMention disable ia") -> {
                 ActivateIA().disableModule(event)
-            }
-            content.startsWith("$botMention enable games") -> {
-                ActiveGames().execute(event, true)
-            }
-            content.startsWith("$botMention disable games") -> {
-                ActiveGames().execute(event, false)
             }
         }
 
@@ -90,9 +83,6 @@ class PrefixCommands : ListenerAdapter() {
             }
             content.startsWith(prefix + "kiss") -> {
                 Kiss().execute(event)
-            }
-            content.startsWith(prefix + "ff") -> {
-                FreeFire().execute(event)
             }
             tagsArray != null -> {
                 tagsArray.forEach { tag ->

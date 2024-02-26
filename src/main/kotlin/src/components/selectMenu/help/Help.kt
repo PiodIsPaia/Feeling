@@ -1,11 +1,10 @@
-package com.github.feeling.src.components.utils
+package com.github.feeling.src.components.selectMenu.help
 
 import com.github.feeling.src.commands.prefix.bot.Help
 import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.arePrefixCommandsActive
 import com.github.feeling.src.database.utils.getOrCreateCollection
-import com.github.feeling.src.database.utils.getPrefix
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent
@@ -14,36 +13,18 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button
 import org.bson.Document
 import java.awt.Color
 
-class HelpComponents : ListenerAdapter() {
+class Help : ListenerAdapter() {
     private val config = Config()
     private val db = Database.instance
-    override fun onStringSelectInteraction(event: StringSelectInteractionEvent) {
-        if (event.selectMenu.id == "menu_help_command") {
-            val selectedValues = event.values
 
-            val prefix = event.guild?.let { getPrefix(it) } ?: config.prefix
+    fun buttonBack(event: ButtonInteractionEvent) {
+        val embed = Help.embed
+        val menu = Help.menu
 
-            for (option in selectedValues) {
-                when (option) {
-                    "menu_help_economy" -> handlerOptionEconomy(event, prefix)
-                    "menu_help_mod" -> handlerOptionMod(event, prefix)
-                    "menu_help_fun" -> handlerOptionFun(event, prefix)
-                    "menu_help_premium" -> handlerOptionPremium(event, prefix)
-                    "menu_help_modules" -> handlerOptionModules(event)
-                }
-            }
-        }
+        event.editMessageEmbeds(embed).setActionRow(menu).queue()
+
     }
-    override fun onButtonInteraction(event: ButtonInteractionEvent) {
-        if (event.componentId == "button_back_help_menu") {
-            val embed = Help.embed
-            val menu = Help.menu
-
-            event.editMessageEmbeds(embed).setActionRow(menu).queue()
-        }
-    }
-
-    private fun handlerOptionEconomy(event: StringSelectInteractionEvent, prefix: String) {
+    fun handlerOptionEconomy(event: StringSelectInteractionEvent, prefix: String) {
         val prefixCommandsActive = arePrefixCommandsActive(event.guild!!.id)
 
         val descriptionPrefix = if (prefixCommandsActive) buildString {
@@ -76,7 +57,7 @@ class HelpComponents : ListenerAdapter() {
         event.editMessageEmbeds(embed).setActionRow(buttonBack).queue()
     }
 
-    private fun handlerOptionMod(event: StringSelectInteractionEvent, prefix: String) {
+    fun handlerOptionMod(event: StringSelectInteractionEvent, prefix: String) {
         val prefixCommandsActive = arePrefixCommandsActive(event.guild!!.id)
 
         val descriptionPrefix = if (prefixCommandsActive) buildString {
@@ -111,7 +92,7 @@ class HelpComponents : ListenerAdapter() {
         event.editMessageEmbeds(embed).setActionRow(buttonBack).queue()
     }
 
-    private fun handlerOptionFun(event: StringSelectInteractionEvent, prefix: String) {
+    fun handlerOptionFun(event: StringSelectInteractionEvent, prefix: String) {
         val prefixCommandsActive = arePrefixCommandsActive(event.guild!!.id)
 
         val descriptionPrefix = if (prefixCommandsActive) buildString {
@@ -144,7 +125,7 @@ class HelpComponents : ListenerAdapter() {
         event.editMessageEmbeds(embed).setActionRow(buttonBack).queue()
     }
 
-    private fun handlerOptionPremium(event: StringSelectInteractionEvent, prefix: String) {
+    fun handlerOptionPremium(event: StringSelectInteractionEvent, prefix: String) {
         val prefixCommandsActive = arePrefixCommandsActive(event.guild!!.id)
 
         val ia = if (isActive(event.guild!!.id)) "- ``@${event.jda.selfUser.name} bom dia`` (Você terá acesso a uma IA apenas me mencionando e logo após a menção escrevendo sua dúvida ou so conversar comigo mesmo)" else ""
@@ -179,7 +160,7 @@ class HelpComponents : ListenerAdapter() {
 
     }
 
-    private fun handlerOptionModules(event: StringSelectInteractionEvent) {
+    fun handlerOptionModules(event: StringSelectInteractionEvent) {
         val toggleOn = config.getEmoji("toggle_on")
         val toggleOff = config.getEmoji("toggle_off")
         val botName = event.jda.selfUser.name

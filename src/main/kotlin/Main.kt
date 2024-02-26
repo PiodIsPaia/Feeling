@@ -14,6 +14,6 @@ fun main() {
     val client = Client()
     val database = Database.instance
 
-    client.run(token = token)
-    database.connect(mongodbUri)
+    client.run(token)
+    database.connect(mongodbLocal)
 }

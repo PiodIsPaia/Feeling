@@ -4,8 +4,6 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import net.dv8tion.jda.api.interactions.commands.Command
-import net.dv8tion.jda.api.interactions.commands.Command.Choice
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -28,7 +26,6 @@ open class SlashCommandData(
     val subcommandsGroup: List<SubCommandGroup> = emptyList()
 )
 
-
 data class Option(
     val type: OptionType,
     val name: String,
@@ -36,7 +33,6 @@ data class Option(
     val required: Boolean = false,
     val channelType: ChannelType? = null,
 )
-
 
 data class SubCommand(
     val name: String,

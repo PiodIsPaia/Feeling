@@ -2,8 +2,11 @@ package com.github.feeling.src.commands.prefix.admin
 
 import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
+import com.github.feeling.src.database.schema.Guild
 import com.github.feeling.src.database.utils.getOrCreateCollection
 import com.github.feeling.src.database.utils.getPrefix
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Updates
 import io.github.cdimascio.dotenv.dotenv
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
@@ -14,19 +17,15 @@ import kotlin.concurrent.schedule
 class AddPremium : ListenerAdapter() {
     private val db = Database.instance
 
-    companion object {
-        lateinit var matchResult: MatchResult
-    }
-
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.author.isBot) return
 
         val config = Config()
         val content = event.message.contentRaw
-        val prefix = getPrefix(event.guild) ?: config.prefix
+        val prefix = getPrefix(Guild(event.guild.id, event.guild.name)) ?: config.prefix
 
         val regex = Regex("""${Regex.escape(prefix)}add premium -user ?(\d+) -duration (\d+)\s*(\w+)""")
-        matchResult = regex.find(content) ?: return
+        val matchResult = regex.find(content) ?: return
 
         if (event.author.id != dotenv()["BOT_OWNER_ID"]) return
 
@@ -37,29 +36,38 @@ class AddPremium : ListenerAdapter() {
         event.jda.retrieveUserById(targetUserId).queue { user ->
             val userId = user.id
             val database = db.client?.getDatabase(db.databaseName)
-            val collection = getOrCreateCollection(database, "users_premium")
+            val collection = getOrCreateCollection(database, "users")
 
             val existingUser = collection?.find(Document("user_id", userId))?.firstOrNull()
-            if (existingUser != null) {
+            if (existingUser == null) {
+                event.channel.sendMessage("O usuário ${user.asMention} não foi encontrado.").queue()
+                return@queue
+            }
+
+            val premium = existingUser["premium"] as? Document
+            if (premium != null && premium.getBoolean("active") == true) {
                 event.channel.sendMessage("O usuário ${user.asMention} já está no grupo Premium.").queue()
                 return@queue
             }
 
             val expirationTime = calculateExpirationTime(duration, timeUnit)
 
-            val document = Document("user_id", userId)
-                .append("expiration_time", expirationTime)
+            val premiumDocument = Document("active", true)
+                .append("expiration", expirationTime)
 
-            collection?.insertOne(document)
+            val update = Updates.set("premium", premiumDocument)
+            val filter = Filters.eq("user_id", userId)
 
-            event.message.reply("Prontinho! Adcionei o ${user.asMention} a minha lista de usuarios **Premium**").queue()
+            collection.updateOne(filter, update)
+
+            event.message.reply("Prontinho! Adicionei o ${user.asMention} à lista de usuários **Premium**.").queue()
 
             val delay = expirationTime - System.currentTimeMillis()
             Timer().schedule(delay) {
-                collection?.deleteOne(document)
+                val unsetPremium = Updates.unset("premium")
+                collection?.updateOne(filter, unsetPremium)
                 event.channel.sendMessage("O período Premium de ${user.asMention} expirou.").queue()
             }
-
         }
     }
 

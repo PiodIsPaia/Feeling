@@ -1,19 +1,20 @@
 package com.github.feeling.src.commands.prefix.squarecloud
 
 import com.github.feeling.src.config.Config
-import io.github.cdimascio.dotenv.dotenv
+import com.github.feeling.src.systens.SquareManager
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
 import org.json.JSONObject
 import java.awt.Color
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.logging.Level
+import java.util.logging.Logger
+
 
 class Status : ListenerAdapter() {
     private val client = OkHttpClient()
@@ -21,7 +22,8 @@ class Status : ListenerAdapter() {
 
     fun execute(event: MessageReceivedEvent) {
 
-        val response = getStatusResponse()
+        val squareManager = SquareManager()
+        val response = squareManager.getStatusResponse()
 
         val network = b.getEmoji("network")
         val ramEmoji = b.getEmoji("ram")
@@ -69,17 +71,9 @@ class Status : ListenerAdapter() {
                 event.channel.sendMessage("Failed to fetch status data.").queue()
             }
         } else {
+            Logger.getLogger(OkHttpClient::class.java.name).setLevel(Level.FINE)
             event.channel.sendMessage("Failed to fetch status data.").queue()
         }
     }
 
-    private fun getStatusResponse(): Response {
-        val apId = dotenv()["SQUAREAPP_ID"]
-        val request = Request.Builder()
-            .url("https://api.squarecloud.app/v2/apps/$apId/status")
-            .header("Authorization", dotenv()["SQUAREAPI_KEY"])
-            .build()
-
-        return client.newCall(request).execute()
-    }
 }

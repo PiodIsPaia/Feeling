@@ -2,6 +2,7 @@ package com.github.feeling.src.commands.prefix
 
 
 import com.github.feeling.src.config.Config
+import com.github.feeling.src.database.schema.Guild
 import com.github.feeling.src.database.utils.activePrefixCommands
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -22,7 +23,7 @@ class EnablePrefixCommands : ListenerAdapter() {
 
             val msg = event.message.reply("$loading **| Ativando, aguarde uns segundos!**").complete()
 
-            activePrefixCommands(event, true)
+            activePrefixCommands(Guild(event.guild.id, event.guild.name), true)
 
             Thread.sleep(2000)
             msg.editMessage("$confirmGif **| Comandos por prefixo foram ativados.**").queue()
@@ -35,7 +36,7 @@ class EnablePrefixCommands : ListenerAdapter() {
 
             val msg = event.message.reply("$loading **| Desativando, aguarde uns segundos!**").complete()
 
-            activePrefixCommands(event, false)
+            activePrefixCommands(Guild(event.guild.id, event.guild.name), false)
 
             Thread.sleep(2000)
             msg.editMessage("$confirmGif **| Comandos por prefixo foram desativados.**").queue()

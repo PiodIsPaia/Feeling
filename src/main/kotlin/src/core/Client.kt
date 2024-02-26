@@ -1,7 +1,7 @@
 package com.github.feeling.src.core
 
-import com.github.feeling.src.commands.prefix.PrefixCommands
 import com.github.feeling.src.commands.slash.registerSlashCommands
+import com.github.feeling.src.components.RegisterComponents
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
@@ -14,13 +14,14 @@ class Client {
         val jda = JDABuilder.createDefault(token)
             .enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
             .setHttpClient(OkHttpClient())
-            .addEventListeners(PrefixCommands())
+            //.addEventListeners(PrefixCommands())
+            //.addEventListeners(AddPremium())
 
         bot.registerCommands("com.github.feeling.src.commands.slash", jda, "Slash Command: ")
-        //bot.registerListener("com.github.feeling.src.commands.prefix", jda, "Prefix Command: ")
-        bot.registerListener("com.github.feeling.src.components", jda, "Component: ")
+        bot.registerListener("com.github.feeling.src.commands.prefix", jda, "Prefix Command: ")
+       // bot.registerListener("com.github.feeling.src.components", jda, "Component: ")
         bot.registerListener("com.github.feeling.src.events", jda, "Event: ")
-        //bot.registerListener("com.github.feeling.src.modules", jda, "Module: ")
+        bot.registerListener("com.github.feeling.src.modules", jda, "Module: ")
 
         jda.setStatus(OnlineStatus.DO_NOT_DISTURB)
         jda.setActivity(Activity.listening("Starting..."))
@@ -48,6 +49,10 @@ class Client {
             }
         }.start()
 
+        val buttonPackage = "com.github.feeling.src.components.buttons"
+        val selectMenuPackage = "com.github.feeling.src.components.selectMenu"
+
+        RegisterComponents.registerComponents(updatedJDA, buttonPackage, selectMenuPackage )
         registerSlashCommands(updatedJDA, "com.github.feeling.src.commands.slash")
     }
 }

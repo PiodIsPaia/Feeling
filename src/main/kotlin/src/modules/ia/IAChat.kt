@@ -1,7 +1,8 @@
-package com.github.feeling.src.modules.`fun`
+package com.github.feeling.src.modules.ia
 
 import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
+import com.github.feeling.src.database.schema.Guild
 import com.github.feeling.src.database.utils.getOrCreateCollection
 import com.github.feeling.src.database.utils.getPrefix
 import com.github.feeling.src.systens.ChatGpt
@@ -24,10 +25,12 @@ class IAChat : ListenerAdapter() {
         val isActive = isActive(guildId)
         val botMention = event.jda.selfUser.asMention
         val content = event.message.contentRaw
-        val prefix = getPrefix(event.guild) ?: Config().prefix
+        val prefix = getPrefix(Guild(event.guild.id, event.guild.name)) ?: Config().prefix
 
         if (isActive) {
-            if (!isVIP(event.author.id)) return
+            val userId = event.author.id
+            val isVIP = isVIP(userId)
+            if (!isVIP) return
             if (content !in listOf("$botMention enable ia", "$botMention disable ia") && !content.startsWith("${prefix}add premium")) {
                 when {
                     event.message.mentions.mentionsEveryone() || event.message.mentions.users.contains(event.jda.selfUser) -> processMessage(event)
@@ -52,22 +55,26 @@ class IAChat : ListenerAdapter() {
     }
 
     private fun isActive(guildId: String): Boolean {
-        val database = db.client?.getDatabase("Feeling")
-        val collection = getOrCreateCollection(database, "modules")
+        val database = db.client?.getDatabase(Database.instance.databaseName)
+        val collection = getOrCreateCollection(database, "guilds")
 
         val filter = Document("guild_id", guildId)
         val result = collection?.find(filter)?.firstOrNull()
 
-        return result?.getBoolean("conversationEnabled") ?: false
+        return result?.getBoolean("ia") ?: false
     }
 
     private fun isVIP(userId: String): Boolean {
-        val database = db.client?.getDatabase("Feeling")
-        val collection = getOrCreateCollection(database, "users_premium")
+        val database = db.client?.getDatabase(Database.instance.databaseName)
+        val collection = getOrCreateCollection(database, "users")
 
         val filter = Document("user_id", userId)
         val result = collection?.find(filter)?.firstOrNull()
 
-        return result != null
+        val premiumDocument = result?.get("premium") as? Document
+        if (premiumDocument == null || !premiumDocument.containsKey("active")) {
+            return false
+        }
+        return premiumDocument.getBoolean("active")
     }
 }
