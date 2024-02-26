@@ -1,5 +1,6 @@
 package com.github.feeling.src.core
 
+import com.github.feeling.src.commands.prefix.PrefixCommandRegistry
 import com.github.feeling.src.commands.slash.registerSlashCommands
 import com.github.feeling.src.components.RegisterComponents
 import net.dv8tion.jda.api.JDABuilder
@@ -14,12 +15,9 @@ class Client {
         val jda = JDABuilder.createDefault(token)
             .enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
             .setHttpClient(OkHttpClient())
-            //.addEventListeners(PrefixCommands())
             //.addEventListeners(AddPremium())
 
         bot.registerCommands("com.github.feeling.src.commands.slash", jda, "Slash Command: ")
-        bot.registerListener("com.github.feeling.src.commands.prefix", jda, "Prefix Command: ")
-       // bot.registerListener("com.github.feeling.src.components", jda, "Component: ")
         bot.registerListener("com.github.feeling.src.events", jda, "Event: ")
         bot.registerListener("com.github.feeling.src.modules", jda, "Module: ")
 
@@ -51,8 +49,10 @@ class Client {
 
         val buttonPackage = "com.github.feeling.src.components.buttons"
         val selectMenuPackage = "com.github.feeling.src.components.selectMenu"
+        val prefixPackage = "com.github.feeling.src.commands.prefix"
 
         RegisterComponents.registerComponents(updatedJDA, buttonPackage, selectMenuPackage )
+        PrefixCommandRegistry.registerCommands(updatedJDA, prefixPackage)
         registerSlashCommands(updatedJDA, "com.github.feeling.src.commands.slash")
     }
 }

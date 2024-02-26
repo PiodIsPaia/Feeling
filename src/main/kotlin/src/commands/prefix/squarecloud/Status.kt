@@ -1,10 +1,10 @@
 package com.github.feeling.src.commands.prefix.squarecloud
 
+import com.github.feeling.src.commands.prefix.PrefixCommandBuilder
 import com.github.feeling.src.config.Config
 import com.github.feeling.src.systens.SquareManager
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import okhttp3.OkHttpClient
 import org.json.JSONObject
 import java.awt.Color
@@ -16,21 +16,26 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 
-class Status : ListenerAdapter() {
-    private val client = OkHttpClient()
-    private val b = Config()
+class Status : PrefixCommandBuilder {
+    override val name: String = "status"
+    override val aliases: Array<String> = arrayOf("square.status")
+    override val action: (MessageReceivedEvent) -> Unit = {event ->
+        execute(event)
+    }
 
-    fun execute(event: MessageReceivedEvent) {
+    private val config = Config()
+
+    private fun execute(event: MessageReceivedEvent) {
 
         val squareManager = SquareManager()
         val response = squareManager.getStatusResponse()
 
-        val network = b.getEmoji("network")
-        val ramEmoji = b.getEmoji("ram")
-        val review = b.getEmoji("review")
-        val square = b.getEmoji("square_cloud")
-        val ssd = b.getEmoji("ssd")
-        val cpuEmoji = b.getEmoji("cpu")
+        val network = config.getEmoji("network")
+        val ramEmoji = config.getEmoji("ram")
+        val review = config.getEmoji("review")
+        val square = config.getEmoji("square_cloud")
+        val ssd = config.getEmoji("ssd")
+        val cpuEmoji = config.getEmoji("cpu")
 
         if (response.isSuccessful) {
             val body = response.body.string()
@@ -75,5 +80,4 @@ class Status : ListenerAdapter() {
             event.channel.sendMessage("Failed to fetch status data.").queue()
         }
     }
-
 }

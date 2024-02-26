@@ -1,18 +1,22 @@
 package com.github.feeling.src.commands.prefix.bot
 
+import com.github.feeling.src.commands.prefix.PrefixCommandBuilder
 import com.github.feeling.src.config.Config
-import com.github.feeling.src.database.utils.arePrefixCommandsActive
-import com.github.feeling.src.database.utils.getPrefix
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu
 import java.awt.Color
 
-class Help : ListenerAdapter() {
+class Help : PrefixCommandBuilder {
+    override val name: String = "help"
+    override val aliases: Array<String> = arrayOf("ajuda")
+    override val action: (MessageReceivedEvent) -> Unit = {event ->
+        execute(event)
+    }
+
     private val config = Config()
 
     companion object {
@@ -20,7 +24,7 @@ class Help : ListenerAdapter() {
         lateinit var menu: SelectMenu
     }
 
-    fun execute(event: MessageReceivedEvent) {
+    private fun execute(event: MessageReceivedEvent) {
         val botName = event.jda.selfUser.name
         val message = getMessage(botName)
         menu = createHelpMenu()

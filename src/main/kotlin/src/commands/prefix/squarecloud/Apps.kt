@@ -1,10 +1,10 @@
 package com.github.feeling.src.commands.prefix.squarecloud
 
+import com.github.feeling.src.commands.prefix.PrefixCommandBuilder
 import com.github.feeling.src.config.Config
 import io.github.cdimascio.dotenv.dotenv
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -12,19 +12,25 @@ import org.json.JSONObject
 import java.awt.Color
 import java.util.*
 
-class Apps : ListenerAdapter() {
-    fun execute(event: MessageReceivedEvent) {
+class Apps : PrefixCommandBuilder {
+    override val name: String = "apps"
+    override val aliases: Array<String> = arrayOf("square.apps")
+    override val action: (MessageReceivedEvent) -> Unit = {event ->
+        execute(event)
+    }
+    private val config = Config()
 
-        val b = Config()
+
+    private fun execute(event: MessageReceivedEvent) {
 
         // Emojis
         //val loading = b.getEmoji("loading")
-        val network = b.getEmoji("network")
-        val ram = b.getEmoji("ram")
-        val review = b.getEmoji("review")
-        val square = b.getEmoji("square_cloud")
-        val java = b.getEmoji("java")
-        val cluster = b.getEmoji("cluster")
+        val network = config.getEmoji("network")
+        val ram = config.getEmoji("ram")
+        val review = config.getEmoji("review")
+        val square = config.getEmoji("square_cloud")
+        val java = config.getEmoji("java")
+        val cluster = config.getEmoji("cluster")
 
         val authorization = dotenv()["SQUAREAPI_KEY"]
         val squareInfo = fetchSquareInfo(authorization)

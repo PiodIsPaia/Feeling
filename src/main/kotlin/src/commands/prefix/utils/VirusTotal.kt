@@ -1,23 +1,29 @@
 package com.github.feeling.src.commands.prefix.utils
 
+import com.github.feeling.src.commands.prefix.PrefixCommandBuilder
 import com.github.feeling.src.config.Config
 import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.getOrCreateCollection
-import com.github.feeling.src.database.utils.getPrefix
 import com.github.feeling.src.systens.VirusTotalManager
 import io.github.cdimascio.dotenv.dotenv
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 import org.bson.Document
 import org.json.JSONObject
 import java.awt.Color
 import java.io.File
 
-class VirusTotal : ListenerAdapter() {
+class VirusTotal : PrefixCommandBuilder {
+    override val name: String = "vt"
+    override val aliases: Array<String> = arrayOf("virustotal")
+    override val action: (MessageReceivedEvent) -> Unit = {event ->
+        execute(event)
+    }
+
+
     private val config = Config()
     private val apiKey = dotenv().get("VT_KEY")
     private val virusTotal = VirusTotalManager(apiKey)
@@ -30,7 +36,7 @@ class VirusTotal : ListenerAdapter() {
         lateinit var button: Button
     }
 
-    fun execute(event: MessageReceivedEvent) {
+    private fun execute(event: MessageReceivedEvent) {
 
         if (!isVIP(event.author.id)) return
         handleVirusTotalCommand(event)

@@ -1,16 +1,22 @@
 package com.github.feeling.src.commands.prefix.economy
 
+import com.github.feeling.src.commands.prefix.PrefixCommandBuilder
 import com.github.feeling.src.database.Database
 import com.github.feeling.src.database.utils.getOrCreateCollection
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.bson.Document
 import java.time.*
 
-class Wallet : ListenerAdapter() {
+class Wallet : PrefixCommandBuilder {
+    override val name: String = "saldo"
+    override val aliases: Array<String> = arrayOf("wallet")
+    override val action: (MessageReceivedEvent) -> Unit = {event ->
+        execute(event)
+    }
+
     private val db = Database.instance
 
-    fun execute(event: MessageReceivedEvent) {
+    private fun execute(event: MessageReceivedEvent) {
         val mentionedMembers = event.message.mentions.members
 
         if (mentionedMembers.isNotEmpty()) {

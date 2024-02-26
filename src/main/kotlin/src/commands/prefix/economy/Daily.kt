@@ -1,34 +1,24 @@
 package com.github.feeling.src.commands.prefix.economy
 
-import com.github.feeling.src.config.Config
-import com.github.feeling.src.database.Database
-import com.github.feeling.src.database.schema.User
-import com.github.feeling.src.database.utils.arePrefixCommandsActive
-import com.github.feeling.src.database.utils.getOrCreateCollection
-import com.github.feeling.src.database.utils.getPrefix
+import com.github.feeling.src.commands.prefix.PrefixCommandBuilder
 import com.github.feeling.src.database.utils.users.Users
-import com.mongodb.MongoClientSettings
-import com.mongodb.client.MongoClients
-import com.mongodb.client.MongoCollection
-import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.Updates
-import com.mongodb.client.model.ValidationOptions
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
-import org.bson.Document
-import org.bson.codecs.configuration.CodecRegistries
-import org.bson.codecs.pojo.PojoCodecProvider
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlin.random.Random
 
-class Daily : ListenerAdapter() {
+class Daily : PrefixCommandBuilder {
+    override val name: String = "daily"
+    override val aliases: Array<String> = arrayOf()
+    override val action: (MessageReceivedEvent) -> Unit = {event ->
+        execute(event)
+    }
 
-    fun execute(event: MessageReceivedEvent) {
+    private fun execute(event: MessageReceivedEvent) {
         val collection = Users().getOrCreateCollectionUser("users")
 
         val userId = event.author.id
