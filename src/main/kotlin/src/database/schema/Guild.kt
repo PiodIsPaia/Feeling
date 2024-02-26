@@ -11,5 +11,11 @@ data class Guild @BsonCreator constructor(
     @BsonProperty("prefix_commands") val prefixCommands: Boolean? = false,
     @BsonProperty("prefix") val prefix: String = Config().prefix,
     @BsonProperty("ia") val ia: Boolean? = false,
-    @BsonProperty("games") val games: Boolean? = false
+    @BsonProperty("games") val games: Boolean? = false,
+    @BsonProperty("tags") val tags: List<Tags>? = emptyList()
+)
+
+data class Tags @BsonCreator constructor(
+    @BsonProperty("name") val name: String?,
+    @BsonProperty("response") val response: String?
 )

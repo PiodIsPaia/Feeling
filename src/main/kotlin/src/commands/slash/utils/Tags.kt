@@ -61,19 +61,19 @@ class Tags : SlashCommandData(
 
 object HandleTag {
     private val db = Database.instance
-    private const val MAXTAGCOUNT = 5
+    private const val MAX_TAG_COUNT = 5
 
     fun create(event: SlashCommandInteractionEvent) {
         event.deferReply().setEphemeral(false).queue()
 
         val guildId = event.guild!!.id
         val database = db.client?.getDatabase(db.databaseName)
-        val collection = getOrCreateCollection(database, "tags")
+        val collection = getOrCreateCollection(database, "guilds")
 
         val tagManager = TagManager(collection!!, guildId)
 
-        if (tagManager.getTagCount() >= MAXTAGCOUNT) {
-            event.hook.editOriginal("Você já atingiu o limite máximo de tags para este servidor (**$MAXTAGCOUNT**)").queue()
+        if (tagManager.getTagCount() >= MAX_TAG_COUNT) {
+            event.hook.editOriginal("Você já atingiu o limite máximo de tags para este servidor (**$MAX_TAG_COUNT**)").queue()
             return
         }
 
@@ -96,19 +96,20 @@ object HandleTag {
 
         val guildId = event.guild!!.id
         val database = db.client?.getDatabase(db.databaseName)
-        val collection = getOrCreateCollection(database, "tags")
+        val collection = getOrCreateCollection(database, "guilds")
 
         val tagManager = TagManager(collection!!, guildId)
         val tagsInfo = tagManager.viewTags()
 
         event.hook.editOriginal(tagsInfo).queue()
     }
+
     fun remove(event: SlashCommandInteractionEvent) {
         event.deferReply().setEphemeral(false).queue()
 
         val guildId = event.guild!!.id
         val database = db.client?.getDatabase(db.databaseName)
-        val collection = getOrCreateCollection(database, "tags")
+        val collection = getOrCreateCollection(database, "guilds")
 
         val tagName = event.getOption("nome")?.asString
         if (tagName.isNullOrBlank()) {
